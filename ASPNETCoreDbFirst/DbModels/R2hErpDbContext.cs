@@ -21,9 +21,9 @@ public partial class R2hErpDbContext : DbContext
     public virtual DbSet<Product> Products { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-
-    }
+    
+        => optionsBuilder.UseSqlServer("Server=DESKTOP-S05PO2V\\SQLEXPRESS;Initial Catalog=R2h_Erp_Db;User ID=sheikmujeeb;Password=Sheikmujeeb@123;Connect Timeout=30;Encrypt=False;");
+    
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

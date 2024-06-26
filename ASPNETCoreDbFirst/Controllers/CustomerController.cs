@@ -1,4 +1,6 @@
 ﻿using ASPNETCoreDbFirst.DbModels;
+using ASPNETCoreDbFirst.IRespository;
+using ASPNETCoreDbFirst.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,15 +8,18 @@ namespace ASPNETCoreDbFirst.Controllers
 {
     public class CustomerController : Controller
     {
-        private readonly R2hErpDbContext context;
-        public CustomerController(R2hErpDbContext _context)
+        public readonly R2hErpDbContext Context;
+        public readonly ICustomerRepository Custom;
+        public CustomerController(R2hErpDbContext context,ICustomerRepository custom)
         {
-            context= _context;
+            Context = context;
+            Custom = custom;
         }
         // GET: CustomerController
-        public ActionResult List()
+        public IActionResult List()
         {
-            return View();
+            var result = Custom.Showall().ToList();
+            return View("List",result);
         }
 
         // GET: CustomerController/Details/5

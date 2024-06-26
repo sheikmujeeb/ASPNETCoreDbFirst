@@ -1,19 +1,17 @@
 using ASPNETCoreDbFirst.DbModels;
-using Microsoft.EntityFrameworkCore;
-
+using ASPNETCoreDbFirst.Repository;
+using ASPNETCoreDbFirst.IRespository;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+
+
 var app = builder.Build();
 
 
-builder.Services.AddDbContext<R2hErpDbContext>(options =>
-{
-    string connectionString=builder.Configuration.GetConnectionString("DBConnection");
-    options.UseSqlServer(connectionString);
-});
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
