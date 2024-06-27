@@ -12,9 +12,10 @@ namespace ASPNETCoreDbFirst.Controllers
             Context = context;
         }
         // GET: OrderController
-        public ActionResult Index()
+        public ActionResult List()
         {
-            return View();
+            var show=Context.Orders.ToList();
+            return View("List",show);
         }
 
         // GET: OrderController/Details/5
