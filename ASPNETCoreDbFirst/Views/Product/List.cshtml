@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ASPNETCoreDbFirst.DbModels.Customer>
+﻿@model IEnumerable<ASPNETCoreDbFirst.DbModels.Product>
 
 @{
     ViewData["Title"] = "List";
@@ -13,16 +13,13 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model=>model.CustomerId)
+                @Html.DisplayNameFor(model => model.ProductId)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PhoneNumber)
+                @Html.DisplayNameFor(model => model.Code)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.CreatedOn)
@@ -30,6 +27,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.UpdatedOn)
             </th>
+            @* <th>
+                @Html.DisplayNameFor(model => model.IsDeleted)
+            </th> *@
             <th>
                 @Html.DisplayNameFor(model => model.IsActive)
             </th>
@@ -40,37 +40,36 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.CustomerId)
-            </td>
+                @Html.DisplayFor(modelItem => item.ProductId)
+           </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PhoneNumber)
+                @Html.DisplayFor(modelItem => item.Code)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.CreatedOn)
             </td>
-             <td>
+            <td>
                 @Html.DisplayFor(modelItem => item.UpdatedOn)
             </td>
+            @* <td>
+                @Html.DisplayFor(modelItem => item.IsDeleted)
+            </td> *@
             <td>
-                    @if (item.IsActive)
+               @if(item.IsActive)
                     {
                         <button class="btn btn-sm btn-success w-10 my-auto"> Active</button>
-                    }
-                    else
+                    }else
                     {
                         <button class="btn btn-sm btn-danger w-10 my-auto">InActive</button>
                     }
-            </td>
+                </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.CustomerId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.CustomerId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.CustomerId">Delete</a>
+                <a asp-action="Edit" asp-route-id="@item.ProductId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.ProductId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.ProductId">Delete</a>
             </td>
         </tr>
 }

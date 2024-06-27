@@ -1,31 +1,29 @@
 ﻿using ASPNETCoreDbFirst.DbModels;
-using ASPNETCoreDbFirst.IRespository;
-using ASPNETCoreDbFirst.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ASPNETCoreDbFirst.Controllers
 {
     public class CustomerController : Controller
     {
+        // GET: CustomerController
         public readonly R2hErpDbContext Context;
-        public readonly ICustomerRepository Custom;
-        public CustomerController(R2hErpDbContext context,ICustomerRepository custom)
+        public CustomerController(R2hErpDbContext context)
         {
             Context = context;
-            Custom = custom;
         }
-        // GET: CustomerController
-        public IActionResult List()
+        public async Task<IActionResult> List()
         {
-            var result = Custom.Showall().ToList();
-            return View("List",result);
+           var show= await Context.Customers.ToListAsync();
+           return View("List",show);
         }
 
         // GET: CustomerController/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+            var show = Context.Customers.Find(id);
+            return View("Details",show);
         }
 
         // GET: CustomerController/Create
@@ -37,11 +35,14 @@ namespace ASPNETCoreDbFirst.Controllers
         // POST: CustomerController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> Create(Customer Signin)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                Signin.CreatedOn=   DateTime.Now;
+                await Context.Customers.AddAsync(Signin);
+                Context.SaveChanges();
+                return RedirectToAction(nameof(List));
             }
             catch
             {
@@ -50,19 +51,32 @@ namespace ASPNETCoreDbFirst.Controllers
         }
 
         // GET: CustomerController/Edit/5
-        public ActionResult Edit(int id)
+        public IActionResult Edit(int id)
         {
-            return View();
+            var show = Context.Customers.Find(id);
+            return View("Edit",show);
         }
 
         // POST: CustomerController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public IActionResult Edit(Customer model)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                var existingCustomer = Context.Customers.Find(model.CustomerId);
+
+                if (existingCustomer != null)
+                {
+                    existingCustomer.Name = model.Name;
+                    existingCustomer.PhoneNumber = model.PhoneNumber;
+                    existingCustomer.Email = model.Email;
+                    existingCustomer.IsActive = model.IsActive;
+                    existingCustomer.UpdatedOn = DateTime.Now;
+                    Context.SaveChanges();
+                }
+                return RedirectToAction(nameof(List));
+
             }
             catch
             {
@@ -73,17 +87,20 @@ namespace ASPNETCoreDbFirst.Controllers
         // GET: CustomerController/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            var show = Context.Customers.Find(id);
+            return View("Delete",show);
         }
 
         // POST: CustomerController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public ActionResult Delete(Customer collection)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                Context.Customers.Remove(collection);
+                Context.SaveChanges();
+                return RedirectToAction(nameof(List));
             }
             catch
             {

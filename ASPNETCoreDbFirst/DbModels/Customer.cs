@@ -5,19 +5,20 @@ namespace ASPNETCoreDbFirst.DbModels;
 
 public partial class Customer
 {
+    
     public int CustomerId { get; set; }
 
-    public string Name { get; set; } = null!;
+    public string Name { get; set; } 
 
-    public string Email { get; set; } = null!;
+    public string Email { get; set; } 
 
-    public string PhoneNumber { get; set; } = null!;
+    public string PhoneNumber { get; set; }
 
     public DateTime CreatedOn { get; set; }
 
-    public DateTime UpdatedOn { get; set; }
+    public DateTime? UpdatedOn { get; set; }
 
-    public DateTime IsDeleted { get; set; }
+    public DateTime? IsDeleted { get; set; }
 
     public bool IsActive { get; set; }
 
