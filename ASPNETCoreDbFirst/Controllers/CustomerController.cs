@@ -14,9 +14,9 @@ namespace ASPNETCoreDbFirst.Controllers
         {
             Context = context;
         }
-        public IActionResult List()
+        public async Task <IActionResult> List()
         {
-           var show= Context.Customers.ToList();
+           var show= Context.Customers.Where(p=>!p.IsDeleted.Value==true).ToList();
            return View("List",show);
         }
 
@@ -104,15 +104,16 @@ namespace ASPNETCoreDbFirst.Controllers
         // POST: CustomerController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(CustomerVM customervm)
+        public async Task<IActionResult> Delete(Customer customer)
         {
-            var Customer=await Context.Customers.FindAsync(customervm.CustomerId);
+            var Customer=await Context.Customers.FindAsync(customer.CustomerId);
             if (Customer != null)
             {
                 Customer.IsDeleted = true;
-                Context.SaveChanges();
+                Context.Customers.Update(Customer);
+                Context.SaveChangesAsync();
             }
-            await Context.SaveChangesAsync();
+            
             return RedirectToAction(nameof(List));
         }
     }
