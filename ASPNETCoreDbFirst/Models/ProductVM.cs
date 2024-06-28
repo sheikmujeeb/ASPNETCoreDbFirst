@@ -9,9 +9,9 @@ namespace ASPNETCoreDbFirst.Models
     {
         public int ProductId { get; set; }
         [Required]
-        public string? Name { get; set; }
+        public string Name { get; set; }
         [Required]
-        public string? Code { get; set; }
+        public string Code { get; set; }
 
         public DateTime CreatedOn { get; set; }
 

@@ -2,6 +2,7 @@
 using ASPNETCoreDbFirst.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace ASPNETCoreDbFirst.Controllers
@@ -73,15 +74,18 @@ namespace ASPNETCoreDbFirst.Controllers
         // POST: ProductController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(ProductVM productvm)
+        public async Task<IActionResult> Edit(int id,ProductVM productvm)
         {
 
             if (ModelState.IsValid)
             {
-                Product existingProduct = Context.Products.Find(productvm.ProductId);
+                Product existingProduct = Context.Products.Find(id);
+                if(existingProduct==null)
+                {
 
+                }
                 existingProduct.Name = productvm.Name;
-                existingProduct.Code=productvm.Code;
+                existingProduct.Code= productvm.Code;
                 existingProduct.IsActive = productvm.IsActive;
                 existingProduct.UpdatedOn = DateTime.Now;
                 Context.Update(existingProduct);
@@ -101,18 +105,12 @@ namespace ASPNETCoreDbFirst.Controllers
         // POST: ProductController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, Product collection)
-        {
-            try
-            {
-                Context.Products.Remove(collection);
-                Context.SaveChanges();
-                return RedirectToAction(nameof(List));
-            }
-            catch
-            {
-                return View();
-            }
+        public IActionResult Delete(Product product)
+        { 
+          Context.Remove(product);    
+          Context.SaveChanges();
+          return RedirectToAction(nameof(List));
+              
         }
     }
 }

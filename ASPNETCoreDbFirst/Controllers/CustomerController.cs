@@ -80,7 +80,7 @@ namespace ASPNETCoreDbFirst.Controllers
         {
             if (ModelState.IsValid)
             {
-                Customer existingCustomer = Context.Customers.Find(customervm.CustomerId);
+                    Customer existingCustomer = Context.Customers.Find(customervm.CustomerId);
                 
                     existingCustomer.Name = customervm.Name;
                     existingCustomer.PhoneNumber = customervm.PhoneNumber;

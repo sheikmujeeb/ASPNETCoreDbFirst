@@ -1,6 +1,7 @@
 ﻿using ASPNETCoreDbFirst.DbModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using ASPNETCoreDbFirst.Models;
 
 namespace ASPNETCoreDbFirst.Controllers
 {
@@ -33,16 +34,22 @@ namespace ASPNETCoreDbFirst.Controllers
         // POST: OrderController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task <IActionResult> Create(OrderVM ordervm)
         {
-            try
+            if (ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index));
+                Order order = new Order();
+                order.OrderDate = DateTime.Now;
+                order.Quantity= ordervm.Quantity;
+                order.CreatedOn = DateTime.Now;
+                order.Amount = ordervm.Amount;
+                Context.Add(order);
+
+                await Context.SaveChangesAsync();
+                return RedirectToAction(nameof(List));
             }
-            catch
-            {
-                return View();
-            }
+            return View(ordervm);
+            
         }
 
         // GET: OrderController/Edit/5
