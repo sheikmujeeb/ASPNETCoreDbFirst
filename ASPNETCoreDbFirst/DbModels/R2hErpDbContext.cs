@@ -20,9 +20,9 @@ public partial class R2hErpDbContext : DbContext
 
     public virtual DbSet<Product> Products { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     
-      => optionsBuilder.UseSqlServer("Server=DESKTOP-S05PO2V\\SQLEXPRESS;Initial Catalog=R2h_Erp_Db;User ID=sheikmujeeb;Password=Sheikmujeeb@123;Connect Timeout=30;Encrypt=False;");
+    //  => optionsBuilder.UseSqlServer("Server=DESKTOP-S05PO2V\\SQLEXPRESS;Initial Catalog=R2h_Erp_Db;User ID=sheikmujeeb;Password=Sheikmujeeb@123;Connect Timeout=30;Encrypt=False;");
 
     
 
@@ -36,7 +36,7 @@ public partial class R2hErpDbContext : DbContext
 
             entity.Property(e => e.CreatedOn).HasColumnType("datetime");
             entity.Property(e => e.Email).HasMaxLength(50);
-            entity.Property(e => e.IsDeleted).HasColumnType("datetime");
+            entity.Property(e => e.IsDeleted).HasColumnType("bool");
             entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.PhoneNumber).HasMaxLength(50);
             entity.Property(e => e.UpdatedOn).HasColumnType("datetime");
@@ -68,7 +68,7 @@ public partial class R2hErpDbContext : DbContext
 
             entity.Property(e => e.Code).HasMaxLength(10);
             entity.Property(e => e.CreatedOn).HasColumnType("datetime");
-            entity.Property(e => e.IsDeleted).HasColumnType("datetime");
+            entity.Property(e => e.IsDeleted).HasColumnType("bool");
             entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.UpdatedOn).HasColumnType("datetime");
         });

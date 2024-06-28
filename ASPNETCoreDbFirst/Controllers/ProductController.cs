@@ -1,6 +1,8 @@
 ﻿using ASPNETCoreDbFirst.DbModels;
+using ASPNETCoreDbFirst.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace ASPNETCoreDbFirst.Controllers
 {
@@ -12,7 +14,7 @@ namespace ASPNETCoreDbFirst.Controllers
             Context = context;
         }
         // GET: ProductController
-        public ActionResult List()
+        public IActionResult List()
         {
             var show=Context.Products.ToList();
             return View("List",show);
@@ -34,52 +36,59 @@ namespace ASPNETCoreDbFirst.Controllers
         // POST: ProductController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Product collection)
+        public async Task<IActionResult> Create(ProductVM productvm)
         {
-            try
+            if (ModelState.IsValid)
             {
-                collection.CreatedOn = DateTime.Now;
-                await Context.Products.AddAsync(collection);
-                Context.SaveChanges();
+                Product products = new Product();
+                products.Name = productvm.Name;
+                products.Code = productvm.Code;
+                products.IsActive = productvm.IsActive;
+                products.CreatedOn = DateTime.Now;
+                products.UpdatedOn = null;
+                products.IsDeleted = false;
+                Context.Add(products);
+
+                await Context.SaveChangesAsync();
                 return RedirectToAction(nameof(List));
             }
-            catch
-            {
-                return View();
-            }
+            return View(productvm);
         }
 
         // GET: ProductController/Edit/5
-        public ActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            var search = Context.Products.Find(id);
-            return View("Edit",search);
+            var show = await Context.Products.FindAsync(id);
+            ProductVM productvm = new ProductVM();
+            if (show != null)
+            {
+                productvm.Name = show.Name;
+                productvm.Code = show.Code;
+                productvm.IsActive = show.IsActive;
+                return View(productvm);
+            }
+            return View();
         }
 
         // POST: ProductController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, Product collection)
+        public async Task<IActionResult> Edit(ProductVM productvm)
         {
-            try
-            {
-                var existingproduct = Context.Products.Find(collection.ProductId);
 
-                if (existingproduct != null)
-                {
-                    existingproduct.Name = collection.Name;
-                    existingproduct.Code = collection.Code;
-                    existingproduct.IsActive = collection.IsActive;
-                    existingproduct.UpdatedOn = DateTime.Now;
-                    Context.SaveChanges();
-                }
+            if (ModelState.IsValid)
+            {
+                Product existingProduct = Context.Products.Find(productvm.ProductId);
+
+                existingProduct.Name = productvm.Name;
+                existingProduct.Code=productvm.Code;
+                existingProduct.IsActive = productvm.IsActive;
+                existingProduct.UpdatedOn = DateTime.Now;
+                Context.Update(existingProduct);
+                await Context.SaveChangesAsync();
                 return RedirectToAction(nameof(List));
-
             }
-            catch
-            {
-                return View();
-            }
+            return View(productvm);
         }
 
         // GET: ProductController/Delete/5
