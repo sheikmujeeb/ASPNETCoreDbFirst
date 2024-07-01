@@ -1,7 +1,9 @@
 ﻿using ASPNETCoreDbFirst.DbModels;
 using ASPNETCoreDbFirst.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace ASPNETCoreDbFirst.Controllers
@@ -30,6 +32,7 @@ namespace ASPNETCoreDbFirst.Controllers
         // GET: CustomerController/Create
         public ActionResult Create()
         {
+           
             return View();
         }
 

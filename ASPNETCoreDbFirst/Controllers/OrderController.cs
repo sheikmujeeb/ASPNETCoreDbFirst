@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ASPNETCoreDbFirst.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ASPNETCoreDbFirst.Controllers
 {
@@ -26,8 +28,12 @@ namespace ASPNETCoreDbFirst.Controllers
         }
 
         // GET: OrderController/Create
-        public ActionResult Create()
+        public async Task <IActionResult> Create()
         {
+            var result= Context.Customers.ToList();
+            var search=Context.Products.ToList();
+            ViewBag.CustomerId = new SelectList(result, "CustomerId","Name");
+            ViewBag.ProductId = new SelectList(search, "ProductId","Name");
             return View();
         }
 
@@ -36,11 +42,11 @@ namespace ASPNETCoreDbFirst.Controllers
         [ValidateAntiForgeryToken]
         public async Task <IActionResult> Create(OrderVM ordervm)
         {
-            if (ModelState.IsValid)
+            if(ModelState.IsValid)
             {
                 Order order = new Order();
                 order.OrderDate = DateTime.Now;
-                order.Quantity= ordervm.Quantity;
+                order.Quantity = ordervm.Quantity;
                 order.CreatedOn = DateTime.Now;
                 order.Amount = ordervm.Amount;
                 Context.Add(order);

@@ -1,4 +1,4 @@
-﻿@model ASPNETCoreDbFirst.DbModels.Order
+﻿@model ASPNETCoreDbFirst.Models.OrderVM
 
 @{
     ViewData["Title"] = "Create";
@@ -14,16 +14,23 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="CustomerId" class="control-label"></label>
-                <select asp-for="CustomerId" class ="form-control" asp-items="ViewBag.CustomerId"></select>
+                <select class="form-select" asp-for="CustomerId" id="CustomerId">
+                    <option value="0">-------Select-------</option>
+                    @foreach (var category in ViewBag.CustomerId.Items)
+                    {
+                        <option value="@category.CustomerId">@category.Name</option>
+                    }
+                </select>
             </div>
             <div class="form-group">
                 <label asp-for="ProductId" class="control-label"></label>
-                <select asp-for="ProductId" class ="form-control" asp-items="ViewBag.ProductId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="OrderDate" class="control-label"></label>
-                <input asp-for="OrderDate" class="form-control" />
-                <span asp-validation-for="OrderDate" class="text-danger"></span>
+                <select class="form-select" asp-for="ProductId" id="ProductId">
+                    <option value="0">-------Select-------</option>
+                    @foreach (var category in ViewBag.ProductId.Items)
+                    {
+                        <option value="@category.ProductId">@category.Name</option>
+                    }
+                </select>
             </div>
             <div class="form-group">
                 <label asp-for="Quantity" class="control-label"></label>

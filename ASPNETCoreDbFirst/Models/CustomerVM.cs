@@ -11,6 +11,7 @@ namespace ASPNETCoreDbFirst.Models
         [Required]
         public string? Email { get; set; }
         [Required]
+        [StringLength(10)]
         public string? PhoneNumber { get; set; }
 
         public DateTime CreatedOn { get; set; }
