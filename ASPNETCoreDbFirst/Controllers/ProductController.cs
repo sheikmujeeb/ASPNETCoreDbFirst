@@ -15,9 +15,9 @@ namespace ASPNETCoreDbFirst.Controllers
             Context = context;
         }
         // GET: ProductController
-        public IActionResult List()
+        public async Task<IActionResult> List()
         {
-            var show=Context.Products.ToList();
+            var show = Context.Products.Where(p => !p.IsDeleted.Value == true).ToList();
             return View("List",show);
         }
 
@@ -96,20 +96,26 @@ namespace ASPNETCoreDbFirst.Controllers
         }
 
         // GET: ProductController/Delete/5
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            var search = Context.Products.Find(id);
+            var search =await Context.Products.FindAsync(id);
             return View("Delete",search);
         }
 
         // POST: ProductController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Delete(Product product)
-        { 
-          Context.Remove(product);    
-          Context.SaveChanges();
-          return RedirectToAction(nameof(List));
+        public async Task<IActionResult> Delete(Product product)
+        {
+            var Product = await Context.Products.FindAsync(product.ProductId);
+            if (Product != null)
+            {
+                Product.IsDeleted = true;
+                Context.Products.Update(Product);
+                Context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(List)); ;
               
         }
     }
