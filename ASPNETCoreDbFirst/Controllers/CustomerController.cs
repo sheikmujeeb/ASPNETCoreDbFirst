@@ -114,6 +114,7 @@ namespace ASPNETCoreDbFirst.Controllers
             {
                 Customer.IsDeleted = true;
                 Context.Customers.Update(Customer);
+                Context.Remove(Customer);
                 Context.SaveChangesAsync();
             }
             

@@ -18,7 +18,7 @@ namespace ASPNETCoreDbFirst.Models
 
         public DateTime? UpdatedOn { get; set; }
 
-        public bool IsDeleted { get; set; }
+        public bool? IsDeleted { get; set; }
         [Required]
         public bool IsActive { get; set; }
 

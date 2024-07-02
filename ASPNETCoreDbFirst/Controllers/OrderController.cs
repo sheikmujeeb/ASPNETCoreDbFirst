@@ -5,6 +5,7 @@ using ASPNETCoreDbFirst.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Humanizer;
+using Microsoft.EntityFrameworkCore;
 
 namespace ASPNETCoreDbFirst.Controllers
 {
@@ -18,7 +19,7 @@ namespace ASPNETCoreDbFirst.Controllers
         // GET: OrderController
         public IActionResult List()
         {
-            var show=Context.Orders.ToList();
+            var show = Context.Orders.Where(p => !p.IsDeleted.Value == true).ToList();
             return View("List",show);
         }
 
@@ -71,24 +72,50 @@ namespace ASPNETCoreDbFirst.Controllers
         }
 
         // GET: OrderController/Edit/5
-        public ActionResult Edit(int id)
+        public IActionResult Edit(int id)
         {
+            var find = Context.Orders.Find(id);
+            OrderVM ordervm = new OrderVM();
+            if (find != null)
+            {
+               ordervm.ProductId = find.ProductId;
+                ordervm.CustomerId = find.CustomerId;
+                ordervm.Quantity = find.Quantity;
+                ordervm.Amount = find.Amount;
+                ordervm.IsActive = find.IsActive;
+
+                var result = Context.Customers.ToList();
+                var search = Context.Products.ToList();
+                ViewBag.CustomerId = new SelectList(result, "CustomerId", "Name");
+                ViewBag.ProductId = new SelectList(search, "ProductId", "Name");
+                return View(ordervm);
+            }
             return View();
         }
 
         // POST: OrderController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Edit(int id,OrderVM ordervm)
         {
-            try
+
+            if (ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index));
+                Order existingorder = Context.Orders.Find(id);
+                if (existingorder == null)
+                {
+
+                }
+                existingorder.Quantity =ordervm.Quantity;
+                existingorder.Amount = ordervm.Amount;
+                existingorder.IsActive = ordervm.IsActive;
+                existingorder.UpdatedOn = DateTime.Now;
+                existingorder.TotalAmount=ordervm.Quantity*ordervm.Amount;
+                Context.Update(existingorder);
+                await Context.SaveChangesAsync();
+                return RedirectToAction(nameof(List));
             }
-            catch
-            {
-                return View();
-            }
+            return View(ordervm);
         }
 
         // GET: OrderController/Delete/5
@@ -108,9 +135,9 @@ namespace ASPNETCoreDbFirst.Controllers
             {
                 record.IsDeleted = true;
                 Context.Orders.Update(record);
-                Context.SaveChangesAsync();
+                Context.SaveChanges();
             }
-
+            await Context.SaveChangesAsync();
             return RedirectToAction(nameof(List));
         }
     }

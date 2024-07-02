@@ -23,12 +23,12 @@ namespace ASPNETCoreDbFirst.Models
 
         public DateTime? UpdatedOn { get; set; }
 
-        public bool IsDeleted { get; set; }
+        public bool? IsDeleted { get; set; }
         [Required]
         public bool IsActive { get; set; }
-        [Required]
-        public virtual Customer Customer { get; set; } = null!;
-        [Required]
-        public virtual Product Product { get; set; } = null!;
+        //[Required]
+        //public virtual Customer Customer { get; set; } = null!;
+        //[Required]
+        //public virtual Product Product { get; set; } = null!;
     }
 }
