@@ -61,17 +61,24 @@
                 @Html.DisplayFor(modelItem => item.UpdatedOn)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.IsActive)
+                    @if (item.IsActive)
+                    {
+                        <button class="btn btn-sm btn-success w-10 my-auto"> Active</button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-sm btn-danger w-10 my-auto">InActive</button>
+                    }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CustomerId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProductId)
             </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.TotalAmount)
                 </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Customer.CustomerId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Product.ProductId)
-            </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.OrderId">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.OrderId">Details</a> |

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using ASPNETCoreDbFirst.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Humanizer;
 
 namespace ASPNETCoreDbFirst.Controllers
 {
@@ -24,7 +25,8 @@ namespace ASPNETCoreDbFirst.Controllers
         // GET: OrderController/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+            var show= Context.Orders.Find(id);
+            return View("Details",show);
         }
 
         // GET: OrderController/Create
@@ -53,11 +55,13 @@ namespace ASPNETCoreDbFirst.Controllers
                 order.Quantity = ordervm.Quantity;
                 order.CreatedOn = DateTime.Now;
                 order.Amount = ordervm.Amount;
+                order.IsActive= ordervm.IsActive;
                 order.UpdatedOn = null;
                 order.IsDeleted = false;
+                order.TotalAmount = order.Quantity * order.Amount;
                 Context.Add(order);
 
-                await Context.SaveChangesAsync();
+                Context.SaveChangesAsync();
                 return RedirectToAction(nameof(List));
             }
             ViewData["CustomerId"] = new SelectList(Context.Customers, "CustomerId", "CustomerId", order.CustomerId);

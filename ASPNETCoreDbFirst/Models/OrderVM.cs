@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-
+using System.ComponentModel.DataAnnotations.Schema;
 using ASPNETCoreDbFirst.DbModels;
 
 namespace ASPNETCoreDbFirst.Models
@@ -7,9 +7,9 @@ namespace ASPNETCoreDbFirst.Models
     public class OrderVM
     {
         public int OrderId { get; set; }
-
+        [ForeignKey("Customers")]
         public int CustomerId { get; set; }
-
+        [ForeignKey("Products")]
         public int ProductId { get; set; }
         [Required]
         public DateTime OrderDate { get; set; }
