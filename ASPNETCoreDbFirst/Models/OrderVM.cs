@@ -17,10 +17,11 @@ namespace ASPNETCoreDbFirst.Models
         public int Quantity { get; set; }
         [Required]
         public decimal Amount { get; set; }
+        public decimal? TotalAmount { get; set; }
 
         public DateTime CreatedOn { get; set; }
 
-        public DateTime UpdatedOn { get; set; }
+        public DateTime? UpdatedOn { get; set; }
 
         public bool IsDeleted { get; set; }
         [Required]

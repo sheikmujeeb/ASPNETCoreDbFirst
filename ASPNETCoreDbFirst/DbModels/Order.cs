@@ -19,11 +19,12 @@ public partial class Order
 
     public DateTime CreatedOn { get; set; }
 
-    public DateTime UpdatedOn { get; set; }
+    public DateTime? UpdatedOn { get; set; }
 
     public bool IsDeleted { get; set; }
 
     public bool IsActive { get; set; }
+    public decimal? TotalAmount { get; set; }
 
     public virtual Customer Customer { get; set; } = null!;
 

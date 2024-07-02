@@ -28,7 +28,7 @@ namespace ASPNETCoreDbFirst.Controllers
         }
 
         // GET: OrderController/Create
-        public async Task <IActionResult> Create()
+        public IActionResult Create()
         {
             var result= Context.Customers.ToList();
             var search=Context.Products.ToList();
@@ -42,18 +42,26 @@ namespace ASPNETCoreDbFirst.Controllers
         [ValidateAntiForgeryToken]
         public async Task <IActionResult> Create(OrderVM ordervm)
         {
-            if(ModelState.IsValid)
+            Order order = new Order();
+            if (order!=null)
             {
-                Order order = new Order();
+               
+                order.OrderId = ordervm.OrderId;
+                order.CustomerId = ordervm.CustomerId;
+                order.ProductId = ordervm.ProductId;
                 order.OrderDate = DateTime.Now;
                 order.Quantity = ordervm.Quantity;
                 order.CreatedOn = DateTime.Now;
                 order.Amount = ordervm.Amount;
+                order.UpdatedOn = null;
+                order.IsDeleted = false;
                 Context.Add(order);
 
                 await Context.SaveChangesAsync();
                 return RedirectToAction(nameof(List));
             }
+            ViewData["CustomerId"] = new SelectList(Context.Customers, "CustomerId", "CustomerId", order.CustomerId);
+            ViewData["ProductId"] = new SelectList(Context.Products, "ProductId", "ProductId", order.ProductId);
             return View(ordervm);
             
         }
@@ -80,24 +88,26 @@ namespace ASPNETCoreDbFirst.Controllers
         }
 
         // GET: OrderController/Delete/5
-        public ActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            return View();
+            var show = await Context.Orders.FindAsync(id);
+            return View("Delete", show);
         }
 
         // POST: OrderController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task <IActionResult> Delete(Order collection)
         {
-            try
+            var record = await Context.Orders.FindAsync(collection.OrderId);
+            if (record != null)
             {
-                return RedirectToAction(nameof(Index));
+                record.IsDeleted = true;
+                Context.Orders.Update(record);
+                Context.SaveChangesAsync();
             }
-            catch
-            {
-                return View();
-            }
+
+            return RedirectToAction(nameof(List));
         }
     }
 }
