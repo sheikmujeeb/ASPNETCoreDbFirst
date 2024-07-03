@@ -11,6 +11,18 @@
     <h4>Order</h4>
     <hr />
     <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayName("CustomerName")
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Customer.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayName("ProductName")
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Product.Name)
+        </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.OrderDate)
         </dt>
@@ -42,17 +54,11 @@
                 <button class="btn btn-sm btn-danger w-10 my-auto">InActive</button>
             }
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CustomerId)
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.TotalAmount)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CustomerId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ProductId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ProductId)
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TotalAmount)
         </dd>
     </dl>
     

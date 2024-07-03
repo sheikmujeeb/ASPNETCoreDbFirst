@@ -19,7 +19,7 @@ namespace ASPNETCoreDbFirst.Controllers
         // GET: OrderController
         public IActionResult List()
         {
-            var show = Context.Orders.Where(p => !p.IsDeleted.Value == true).ToList();
+            var show = Context.Orders.Where(p => !p.IsDeleted.Value == true).Include(o => o.Customer).Include(o => o.Product).ToList();
 
             return View("List",show);
         }
