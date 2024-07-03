@@ -20,6 +20,7 @@ namespace ASPNETCoreDbFirst.Controllers
         public IActionResult List()
         {
             var show = Context.Orders.Where(p => !p.IsDeleted.Value == true).ToList();
+
             return View("List",show);
         }
 
@@ -65,8 +66,8 @@ namespace ASPNETCoreDbFirst.Controllers
                 Context.SaveChangesAsync();
                 return RedirectToAction(nameof(List));
             }
-            ViewData["CustomerId"] = new SelectList(Context.Customers, "CustomerId", "CustomerId", order.CustomerId);
-            ViewData["ProductId"] = new SelectList(Context.Products, "ProductId", "ProductId", order.ProductId);
+            //ViewData["CustomerId"] = new SelectList(Context.Customers, "CustomerId", "CustomerId", order.CustomerId);
+            //ViewData["ProductId"] = new SelectList(Context.Products, "ProductId", "ProductId", order.ProductId);
             return View(ordervm);
             
         }

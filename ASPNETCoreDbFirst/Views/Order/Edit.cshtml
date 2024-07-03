@@ -13,6 +13,18 @@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="OrderId" />
+             <dt class="col-sm-2">
+                @Html.DisplayName("CustomerName")
+            </dt>
+             <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.CustomerId)
+             </dd>
+              <dt class="col-sm-2">
+                @Html.DisplayName("ProductName")
+             </dt>
+              <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.ProductId)
+            </dd>
             <div class="form-group">
                 <label asp-for="Quantity" class="control-label"></label>
                 <input asp-for="Quantity" class="form-control" />
