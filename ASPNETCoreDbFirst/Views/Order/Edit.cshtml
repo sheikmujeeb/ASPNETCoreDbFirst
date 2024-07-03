@@ -25,14 +25,19 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="OrderId" />
             <div class="form-group">
-                <label asp-for="CustomerId" class="control-label"></label>
+                @Html.DisplayName("CustomerId")
                 <input asp-for="CustomerId" class="form-control" readonly />
                 <span asp-validation-for="CustomerId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ProductId" class="control-label"></label>
-                <input asp-for="ProductId" class="form-control" readonly />
-                <span asp-validation-for="ProductId" class="text-danger"></span>
+                @Html.DisplayName("ProductName")
+                <select class="form-select" asp-for="ProductId" id="ProductId">
+                    <option value="0">-------Select-------</option>
+                    @foreach (var category in ViewBag.ProductId.Items)
+                    {
+                        <option value="@category.ProductId">@category.Name</option>
+                    }
+                </select>
             </div>
             <div class="form-group">
                 <label asp-for="Quantity" class="control-label"></label>

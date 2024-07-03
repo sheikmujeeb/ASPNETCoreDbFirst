@@ -24,7 +24,7 @@
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="CustomerId" class="control-label"></label>
+                 @Html.DisplayName("CustomerName")
                 <select class="form-select" asp-for="CustomerId" id="CustomerId">
                     <option value="0">-------Select-------</option>
                     @foreach (var category in ViewBag.CustomerId.Items)
@@ -34,7 +34,7 @@
                 </select>
             </div>
             <div class="form-group">
-                <label asp-for="ProductId" class="control-label"></label>
+                @Html.DisplayName("ProductName")
                 <select class="form-select" asp-for="ProductId" id="ProductId">
                     <option value="0">-------Select-------</option>
                     @foreach (var category in ViewBag.ProductId.Items)
