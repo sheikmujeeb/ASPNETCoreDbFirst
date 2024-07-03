@@ -49,6 +49,10 @@
                 <input asp-for="Amount" class="form-control" />
                 <span asp-validation-for="Amount" class="text-danger"></span>
             </div>
+            <div class="form-group">
+                <label asp-for="OrderDate" class="control-label"></label>
+                <input type="datetime" asp-for="OrderDate" value="@DateTime.Now" class="form-control" />
+            </div>
         <div class="form-group">
             <label asp-for="TotalAmount" class="control-label"></label>
             <input asp-for="TotalAmount" class="form-control" readonly/>
