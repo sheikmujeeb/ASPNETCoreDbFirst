@@ -8,6 +8,17 @@
 
 <h4>Order</h4>
 <hr />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#Quantity, #Amount').on('input', function () {
+            var quantity = parseFloat($('#Quantity').val()) || 0;
+            var amount = parseFloat($('#Amount').val()) || 0;
+            var totalAmount = quantity * amount;
+            $('#TotalAmount').val(totalAmount);
+        });
+    });
+</script>
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
@@ -41,6 +52,11 @@
                 <label asp-for="Amount" class="control-label"></label>
                 <input asp-for="Amount" class="form-control" />
                 <span asp-validation-for="Amount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TotalAmount" class="control-label"></label>
+                <input asp-for="TotalAmount" class="form-control" readonly />
+                <span asp-validation-for="TotalAmount" class="text-danger"></span>
             </div>
             <div class="form-group form-check">
                 <label class="form-check-label">
