@@ -48,11 +48,11 @@ namespace ASPNETCoreDbFirst.Controllers
         [ValidateAntiForgeryToken]
         public async Task <IActionResult> Create(OrderVM ordervm)
         {
-            Order order = new Order();
+           
 
-            if (ordervm!=null)
+            if (ModelState.IsValid)
             {
-               
+                Order order = new Order();
                 //order.OrderId = ordervm.OrderId;
                 order.CustomerId = ordervm.CustomerId;
                 order.ProductId = ordervm.ProductId;
@@ -110,6 +110,7 @@ namespace ASPNETCoreDbFirst.Controllers
                 existingorder.Quantity =ordervm.Quantity;
                 existingorder.Amount = ordervm.Amount;
                 existingorder.UpdatedOn = DateTime.Now;
+                existingorder.OrderDate=ordervm.OrderDate;
               
 
                 existingorder.TotalAmount = ordervm.Quantity * ordervm.Amount;
