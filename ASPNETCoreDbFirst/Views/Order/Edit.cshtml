@@ -24,14 +24,17 @@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="OrderId" />
-            <div class="form-group">
-                @Html.DisplayName("CustomerId")
-                <input asp-for="CustomerId" class="form-control" readonly />
-                <span asp-validation-for="CustomerId" class="text-danger"></span>
-            </div>
+            @Html.DisplayName("CustomerName")
+            <select class="form-select" asp-for="CustomerId"  id="CustomerId"disabled >
+                <option value="0">-------Select-------</option>
+                @foreach (var category in ViewBag.CustomerId.Items)
+                {
+                    <option value="@category.CustomerId">@category.Name</option>
+                }
+            </select>
             <div class="form-group">
                 @Html.DisplayName("ProductName")
-                <select class="form-select" asp-for="ProductId" id="ProductId">
+                <select class="form-select" asp-for="ProductId" id="ProductId"disabled >
                     <option value="0">-------Select-------</option>
                     @foreach (var category in ViewBag.ProductId.Items)
                     {
@@ -51,18 +54,14 @@
             </div>
             <div class="form-group">
                 <label asp-for="OrderDate" class="control-label"></label>
-                <input type="datetime" asp-for="OrderDate" value="@DateTime.Now" class="form-control" />
+                <input asp-for="OrderDate" class="form-control" Value="@DateTime.Now" />
+                <span asp-validation-for="OrderDate" class="text-danger"></span>
             </div>
         <div class="form-group">
             <label asp-for="TotalAmount" class="control-label"></label>
             <input asp-for="TotalAmount" class="form-control" readonly/>
             <span asp-validation-for="TotalAmount" class="text-danger"> </span>
         </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsActive" /> @Html.DisplayNameFor(model => model.IsActive)
-                </label>
-            </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
                 <a asp-action="List">Back to List</a>

@@ -23,8 +23,6 @@ public partial class Order
 
     public bool? IsDeleted { get; set; }
 
-    public bool IsActive { get; set; }
-
     public decimal? TotalAmount { get; set; }
 
     public virtual Customer Customer { get; set; } = null!;

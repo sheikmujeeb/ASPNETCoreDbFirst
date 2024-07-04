@@ -16,7 +16,7 @@ namespace ASPNETCoreDbFirst.Controllers
         {
             Context = context;
         }
-        public async Task <IActionResult> List()
+        public IActionResult List()
         {
            var show= Context.Customers.Where(p=>!p.IsDeleted.Value==true).ToList();
            return View("List",show);
@@ -114,7 +114,6 @@ namespace ASPNETCoreDbFirst.Controllers
             {
                 Customer.IsDeleted = true;
                 Context.Customers.Update(Customer);
-                Context.Remove(Customer);
                 Context.SaveChangesAsync();
             }
             

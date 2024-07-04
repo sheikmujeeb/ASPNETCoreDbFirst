@@ -34,10 +34,11 @@ namespace ASPNETCoreDbFirst.Controllers
         // GET: OrderController/Create
         public IActionResult Create()
         {
-            var result= Context.Customers.ToList();
-            var search=Context.Products.ToList();
-            ViewBag.CustomerId = new SelectList(result, "CustomerId","Name");
-            ViewBag.ProductId = new SelectList(search, "ProductId","Name");
+            var result= Context.Customers.ToList().Where(p => !p.IsDeleted.Value == true).Where(o => !o.IsActive == false);
+            var search=Context.Products.ToList().Where(p => !p.IsDeleted.Value == true).Where(o => !o.IsActive == false);
+            ViewBag.CustomerId = new SelectList(result, "CustomerId", "Name");
+            ViewBag.ProductId = new SelectList(search, "ProductId", "Name");
+
             return View();
         }
 
@@ -49,7 +50,7 @@ namespace ASPNETCoreDbFirst.Controllers
             Order order = new Order();
             if (order!=null)
             {
-               
+
                 order.OrderId = ordervm.OrderId;
                 order.CustomerId = ordervm.CustomerId;
                 order.ProductId = ordervm.ProductId;
@@ -57,7 +58,6 @@ namespace ASPNETCoreDbFirst.Controllers
                 order.Quantity = ordervm.Quantity;
                 order.CreatedOn = DateTime.Now;
                 order.Amount = ordervm.Amount;
-                order.IsActive= ordervm.IsActive;
                 order.UpdatedOn = null;
                 order.IsDeleted = false;
                 order.TotalAmount = order.Quantity * order.Amount;
@@ -66,27 +66,28 @@ namespace ASPNETCoreDbFirst.Controllers
                 Context.SaveChangesAsync();
                 return RedirectToAction(nameof(List));
             }
-            //ViewData["CustomerId"] = new SelectList(Context.Customers, "CustomerId", "CustomerId", order.CustomerId);
-            //ViewData["ProductId"] = new SelectList(Context.Products, "ProductId", "ProductId", order.ProductId);
+            
             return View(ordervm);
             
         }
 
         // GET: OrderController/Edit/5
         public IActionResult Edit(int id)
-        {
+        { 
             var find = Context.Orders.Find(id);
+           
             OrderVM ordervm = new OrderVM();
             if (find != null)
             {
-               ordervm.ProductId = find.ProductId;
+                ordervm.ProductId = find.ProductId;
                 ordervm.CustomerId = find.CustomerId;
                 ordervm.Quantity = find.Quantity;
                 ordervm.Amount = find.Amount;
-                ordervm.IsActive = find.IsActive;
+                ordervm.TotalAmount= find.TotalAmount;
+                ordervm.OrderDate= DateTime.Now;
 
-                var result = Context.Customers.ToList();
-                var search = Context.Products.ToList();
+                var result = Context.Customers.ToList().Where(p => !p.IsDeleted.Value == true).Where(o => !o.IsActive == false);
+                var search = Context.Products.ToList().Where(p => !p.IsDeleted.Value == true).Where(o => !o.IsActive == false);
                 ViewBag.CustomerId = new SelectList(result, "CustomerId", "Name");
                 ViewBag.ProductId = new SelectList(search, "ProductId", "Name");
                 return View(ordervm);
@@ -103,15 +104,12 @@ namespace ASPNETCoreDbFirst.Controllers
             if (ModelState.IsValid)
             {
                 Order existingorder = Context.Orders.Find(id);
-                if (existingorder == null)
-                {
-
-                }
                 existingorder.Quantity =ordervm.Quantity;
                 existingorder.Amount = ordervm.Amount;
-                existingorder.IsActive = ordervm.IsActive;
                 existingorder.UpdatedOn = DateTime.Now;
-                existingorder.TotalAmount=ordervm.Quantity*ordervm.Amount;
+
+
+                existingorder.TotalAmount = ordervm.Quantity * ordervm.Amount;
                 Context.Update(existingorder);
                 await Context.SaveChangesAsync();
                 return RedirectToAction(nameof(List));
