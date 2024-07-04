@@ -6,19 +6,22 @@ namespace ASPNETCoreDbFirst.Models
 {
     public class OrderVM
     {
-        [Required]
         public int OrderId { get; set; }
+        [Required]
+   
         [ForeignKey("Customers")]
         public int CustomerId { get; set; }
+        [Required]
         [ForeignKey("Products")]
         public int ProductId { get; set; }
-        [Required]
-        public DateTime? OrderDate { get; set; }
-        [Required]
+        [DataType(DataType.Date)]
+        public DateTime OrderDate { get; set; }
+        [Required(ErrorMessage = "Quantity is required")]
         public int Quantity { get; set; }
-        [Required]
+        
+        [Required(ErrorMessage = "Amount is required")]
         public decimal Amount { get; set; }
-        [Required]
+      
         public decimal? TotalAmount { get; set; }
 
         public DateTime CreatedOn { get; set; }
@@ -26,9 +29,5 @@ namespace ASPNETCoreDbFirst.Models
         public DateTime? UpdatedOn { get; set; }
 
         public bool? IsDeleted { get; set; }
-
-        public virtual Customer Customer { get; set; } = null!;
-
-        public virtual Product Product { get; set; } = null!;
     }
 }

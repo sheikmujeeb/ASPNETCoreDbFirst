@@ -2,6 +2,7 @@
 using ASPNETCoreDbFirst.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -15,7 +16,7 @@ namespace ASPNETCoreDbFirst.Controllers
             Context = context;
         }
         // GET: ProductController
-        public async Task<IActionResult> List()
+        public IActionResult List()
         {
             var show = Context.Products.Where(p => !p.IsDeleted.Value == true).ToList();
             return View("List",show);
@@ -105,11 +106,17 @@ namespace ASPNETCoreDbFirst.Controllers
         // POST: ProductController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(Product product)
+        public async Task<IActionResult> Delete(int id,Product product)
         {
-            var Product = await Context.Products.FindAsync(product.ProductId);
-            if (Product != null)
+            
+            var ProductInOrder = Context.Orders.Any(o => o.ProductId == id);
+            if (ProductInOrder==true)
             {
+                return Content("The Product was in Order So we cannot able to delete the Product...!!");
+            }
+            else
+            {
+                var Product = await Context.Products.FindAsync(product.ProductId);
                 Product.IsDeleted = true;
                 Context.Products.Update(Product);
                 Context.SaveChangesAsync();

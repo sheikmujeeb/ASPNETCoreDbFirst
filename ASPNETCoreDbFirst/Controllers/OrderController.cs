@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.CodeAnalysis;
 
 namespace ASPNETCoreDbFirst.Controllers
 {
@@ -48,10 +49,11 @@ namespace ASPNETCoreDbFirst.Controllers
         public async Task <IActionResult> Create(OrderVM ordervm)
         {
             Order order = new Order();
-            if (order!=null)
-            {
 
-                order.OrderId = ordervm.OrderId;
+            if (ordervm!=null)
+            {
+               
+                //order.OrderId = ordervm.OrderId;
                 order.CustomerId = ordervm.CustomerId;
                 order.ProductId = ordervm.ProductId;
                 order.OrderDate = DateTime.Now;
@@ -63,10 +65,11 @@ namespace ASPNETCoreDbFirst.Controllers
                 order.TotalAmount = order.Quantity * order.Amount;
                 Context.Add(order);
 
-                Context.SaveChangesAsync();
+                 Context.SaveChangesAsync();
                 return RedirectToAction(nameof(List));
             }
-            
+            //ViewData["CustomerId"]=new SelectList(Context.Customers,"CustomerId","CustomerId",order.CustomerId);
+            //ViewData["ProductId"] = new SelectList(Context.Pr, "ProductId", "ProductId", order.ProductId);
             return View(ordervm);
             
         }
@@ -101,13 +104,13 @@ namespace ASPNETCoreDbFirst.Controllers
         public async Task<IActionResult> Edit(int id,OrderVM ordervm)
         {
 
-            if (ModelState.IsValid)
+            if (id!=null)
             {
                 Order existingorder = Context.Orders.Find(id);
                 existingorder.Quantity =ordervm.Quantity;
                 existingorder.Amount = ordervm.Amount;
                 existingorder.UpdatedOn = DateTime.Now;
-
+              
 
                 existingorder.TotalAmount = ordervm.Quantity * ordervm.Amount;
                 Context.Update(existingorder);
@@ -127,14 +130,20 @@ namespace ASPNETCoreDbFirst.Controllers
         // POST: OrderController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task <IActionResult> Delete(Order collection)
+        public async Task <IActionResult> Delete(int id,Order collection)
         {
             var record = await Context.Orders.FindAsync(collection.OrderId);
             if (record != null)
             {
-                record.IsDeleted = true;
-                Context.Orders.Update(record);
-                Context.SaveChanges();
+                bool productExistsInOrder = Context.Orders.Any(o => o.ProductId == id);
+                if (productExistsInOrder == false)
+                {
+                    record.IsDeleted = true;
+                    Context.Orders.Update(record);
+                    Context.SaveChanges();
+
+                }
+               
             }
             await Context.SaveChangesAsync();
             return RedirectToAction(nameof(List));

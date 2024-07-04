@@ -107,14 +107,23 @@ namespace ASPNETCoreDbFirst.Controllers
         // POST: CustomerController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(Customer customer)
+        public async Task<IActionResult> Delete(int id,Customer customer)
         {
-            var Customer=await Context.Customers.FindAsync(customer.CustomerId);
-            if (Customer != null)
+            var ProductInOrder = Context.Orders.Any(o => o.CustomerId == id);
+
+            if (ProductInOrder == true)
             {
-                Customer.IsDeleted = true;
-                Context.Customers.Update(Customer);
-                Context.SaveChangesAsync();
+                return Content("The Customer was Order a Product .So we cannot able to delete the Customer...!!");
+            }
+            else
+            {
+                var Customer = await Context.Customers.FindAsync(customer.CustomerId);
+                if (Customer != null)
+                {
+                    Customer.IsDeleted = true;
+                    Context.Customers.Update(Customer);
+                    await Context.SaveChangesAsync();
+                }
             }
             
             return RedirectToAction(nameof(List));
