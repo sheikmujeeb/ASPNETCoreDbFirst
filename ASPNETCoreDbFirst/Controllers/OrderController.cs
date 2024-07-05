@@ -48,12 +48,12 @@ namespace ASPNETCoreDbFirst.Controllers
         [ValidateAntiForgeryToken]
         public async Task <IActionResult> Create(OrderVM ordervm)
         {
-           
+            Order order = new Order();
 
-            if (ModelState.IsValid)
+            if (order!=null)
             {
-                Order order = new Order();
-                //order.OrderId = ordervm.OrderId;
+               
+                
                 order.CustomerId = ordervm.CustomerId;
                 order.ProductId = ordervm.ProductId;
                 order.OrderDate = DateTime.Now;
@@ -68,8 +68,7 @@ namespace ASPNETCoreDbFirst.Controllers
                  Context.SaveChangesAsync();
                 return RedirectToAction(nameof(List));
             }
-            //ViewData["CustomerId"]=new SelectList(Context.Customers,"CustomerId","CustomerId",order.CustomerId);
-            //ViewData["ProductId"] = new SelectList(Context.Pr, "ProductId", "ProductId", order.ProductId);
+            
             return View(ordervm);
             
         }
@@ -87,10 +86,10 @@ namespace ASPNETCoreDbFirst.Controllers
                 ordervm.Quantity = find.Quantity;
                 ordervm.Amount = find.Amount;
                 ordervm.TotalAmount= find.TotalAmount;
-                ordervm.OrderDate= DateTime.Now;
+                ordervm.OrderDate = find.OrderDate;
 
-                var result = Context.Customers.ToList().Where(p => !p.IsDeleted.Value == true).Where(o => !o.IsActive == false);
-                var search = Context.Products.ToList().Where(p => !p.IsDeleted.Value == true).Where(o => !o.IsActive == false);
+                var result = Context.Customers.ToList();      //.Where(p => !p.IsDeleted.Value == true).Where(o => !o.IsActive == false);
+                var search = Context.Products.ToList();      //.Where(p => !p.IsDeleted.Value == true).Where(o => !o.IsActive == false);
                 ViewBag.CustomerId = new SelectList(result, "CustomerId", "Name");
                 ViewBag.ProductId = new SelectList(search, "ProductId", "Name");
                 return View(ordervm);
