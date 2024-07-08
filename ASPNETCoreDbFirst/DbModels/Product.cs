@@ -19,5 +19,7 @@ public partial class Product
 
     public bool IsActive { get; set; }
 
+    public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 }

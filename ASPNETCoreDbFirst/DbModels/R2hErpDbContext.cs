@@ -19,6 +19,10 @@ public partial class R2hErpDbContext : DbContext
 
     public virtual DbSet<Order> Orders { get; set; }
 
+    public virtual DbSet<OrderItem> OrderItems { get; set; }
+
+    public virtual DbSet<OrderTab> OrderTabs { get; set; }
+
     public virtual DbSet<Product> Products { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -53,6 +57,44 @@ public partial class R2hErpDbContext : DbContext
                 .HasForeignKey(d => d.ProductId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Orders__ProductI__07C12930");
+        });
+
+        modelBuilder.Entity<OrderItem>(entity =>
+        {
+            entity.HasKey(e => e.OrderItemId).HasName("PK__OrderIte__57ED06816FC9CC36");
+
+            entity.ToTable("OrderItem");
+
+            entity.Property(e => e.TotalPrice).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.UnitPrice).HasColumnType("decimal(18, 2)");
+
+            entity.HasOne(d => d.Order).WithMany(p => p.OrderItems)
+                .HasForeignKey(d => d.OrderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__OrderItem__Order__7AF13DF7");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.OrderItems)
+                .HasForeignKey(d => d.ProductId)
+                .HasConstraintName("FK__OrderItem__Produ__7BE56230");
+        });
+
+        modelBuilder.Entity<OrderTab>(entity =>
+        {
+            entity.HasKey(e => e.OrderId).HasName("PK__OrderTab__C3905BCF3F575CFC");
+
+            entity.ToTable("OrderTab");
+
+            entity.Property(e => e.Discount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.NetTotal).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.OrderDate).HasColumnType("datetime");
+            entity.Property(e => e.OrderNumber).HasMaxLength(50);
+            entity.Property(e => e.ShippingFee).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.SubTotal).HasColumnType("decimal(18, 2)");
+
+            entity.HasOne(d => d.Customer).WithMany(p => p.OrderTabs)
+                .HasForeignKey(d => d.CustomerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__OrderTab__Custom__2EA5EC27");
         });
 
         modelBuilder.Entity<Product>(entity =>
