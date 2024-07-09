@@ -25,8 +25,6 @@ namespace ASPNETCoreDbFirst.Models
 
         [ForeignKey("StatusTab")]
         public int StatusId { get; set; }
-        public List<OrderItem> Items { get; set; }
-
-        public List<StatusTab> Status { get; set; }
+        
     }
 }

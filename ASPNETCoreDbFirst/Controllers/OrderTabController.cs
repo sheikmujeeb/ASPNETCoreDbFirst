@@ -14,8 +14,15 @@ namespace ASPNETCoreDbFirst.Controllers
         // GET: OrderTabController
         public ActionResult List()
         {
-            var show = Context.OrderViewModel.ToList();
+            var show=Context.OrderViewModel.ToList();
+            ViewBag.CustomerId = getcustomerid();
             return View("List",show);
+        }
+        public List<Customer>getcustomerid()
+        {
+            var customer = Context.Customers.ToList();
+            return customer;
+
         }
 
         // GET: OrderTabController/Details/5
