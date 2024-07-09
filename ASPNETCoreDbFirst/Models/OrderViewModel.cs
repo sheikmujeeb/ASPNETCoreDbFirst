@@ -6,41 +6,27 @@ namespace ASPNETCoreDbFirst.Models
 {
     public class OrderViewModel
     {
-        public class OrderTabVM
-        {
-            public int OrderId { get; set; }
-            [Required]
-            public string? OrderNumber { get; set; }
-            [ForeignKey("Customer")]
-            public int CustomerId { get; set; }
-            [Required]
-            public DateTime OrderDate { get; set; }
-            [Required]
-            public decimal? SubTotal { get; set; }
-            [Required]
-            public decimal? Discount { get; set; }
-            [Required]
-            public decimal? ShippingFee { get; set; }
-            [Required]
-            public decimal? NetTotal { get; set; }
-            [Required]
-            public int StatusId { get; set; }
+        [Key]
+        public int OrderId { get; set; }
 
-        }
-        public class OrderItemVM
-        {
-            [Key]
-            public int OrderItemId { get; set; }
-            [ForeignKey("OrderTab")]
-            public int OrderId { get; set; }
-            [ForeignKey("Product")]
-            public int? ProductId { get; set; }
+        public string? OrderNumber { get; set; }
+        [ForeignKey("Customers")]
+        public int CustomerId { get; set; }
 
-            public int? Quantity { get; set; }
+        public DateTime OrderDate { get; set; }
 
-            public decimal UnitPrice { get; set; }
+        public decimal? SubTotal { get; set; }
 
-            public decimal TotalPrice { get; set; }
-        }
+        public decimal? Discount { get; set; }
+
+        public decimal? ShippingFee { get; set; }
+
+        public decimal? NetTotal { get; set; }
+
+        [ForeignKey("StatusTab")]
+        public int StatusId { get; set; }
+        public List<OrderItem> Items { get; set; }
+
+        public List<StatusTab> Status { get; set; }
     }
 }

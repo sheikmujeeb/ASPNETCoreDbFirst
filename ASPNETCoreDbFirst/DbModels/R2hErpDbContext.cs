@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ASPNETCoreDbFirst.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace ASPNETCoreDbFirst.DbModels;
@@ -24,6 +25,9 @@ public partial class R2hErpDbContext : DbContext
     public virtual DbSet<OrderTab> OrderTabs { get; set; }
 
     public virtual DbSet<Product> Products { get; set; }
+
+    public virtual DbSet<StatusTab> StatusTabs { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -61,7 +65,7 @@ public partial class R2hErpDbContext : DbContext
 
         modelBuilder.Entity<OrderItem>(entity =>
         {
-            entity.HasKey(e => e.OrderItemId).HasName("PK__OrderIte__57ED06816FC9CC36");
+            entity.HasKey(e => e.OrderItemId).HasName("PK__OrderIte__57ED0681D97FAF2D");
 
             entity.ToTable("OrderItem");
 
@@ -71,16 +75,16 @@ public partial class R2hErpDbContext : DbContext
             entity.HasOne(d => d.Order).WithMany(p => p.OrderItems)
                 .HasForeignKey(d => d.OrderId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrderItem__Order__7AF13DF7");
+                .HasConstraintName("FK__OrderItem__Order__1E3A7A34");
 
             entity.HasOne(d => d.Product).WithMany(p => p.OrderItems)
                 .HasForeignKey(d => d.ProductId)
-                .HasConstraintName("FK__OrderItem__Produ__7BE56230");
+                .HasConstraintName("FK__OrderItem__Produ__1F2E9E6D");
         });
 
         modelBuilder.Entity<OrderTab>(entity =>
         {
-            entity.HasKey(e => e.OrderId).HasName("PK__OrderTab__C3905BCF3F575CFC");
+            entity.HasKey(e => e.OrderId).HasName("PK__OrderTab__C3905BCF1160367E");
 
             entity.ToTable("OrderTab");
 
@@ -94,7 +98,12 @@ public partial class R2hErpDbContext : DbContext
             entity.HasOne(d => d.Customer).WithMany(p => p.OrderTabs)
                 .HasForeignKey(d => d.CustomerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrderTab__Custom__2EA5EC27");
+                .HasConstraintName("FK__OrderTab__Custom__1A69E950");
+
+            entity.HasOne(d => d.Status).WithMany(p => p.OrderTabs)
+                .HasForeignKey(d => d.StatusId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__OrderTab__Status__1B5E0D89");
         });
 
         modelBuilder.Entity<Product>(entity =>
@@ -104,11 +113,23 @@ public partial class R2hErpDbContext : DbContext
             entity.Property(e => e.Code).HasMaxLength(10);
             entity.Property(e => e.CreatedOn).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(50);
+            entity.Property(e => e.UnitPrice).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.UpdatedOn).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<StatusTab>(entity =>
+        {
+            entity.HasKey(e => e.StatusId).HasName("PK__StatusTa__C8EE2063769D180B");
+
+            entity.ToTable("StatusTab");
+
+            entity.Property(e => e.StatusName).HasMaxLength(50);
         });
 
         OnModelCreatingPartial(modelBuilder);
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
+public DbSet<ASPNETCoreDbFirst.Models.OrderViewModel> OrderViewModel { get; set; } = default!;
 }
