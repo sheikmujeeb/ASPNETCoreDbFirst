@@ -16,6 +16,8 @@ namespace ASPNETCoreDbFirst.Controllers
         // GET: OrderTabController
         public IActionResult List()
         {
+            var show=Context.OrderTabs.ToList();
+            var result= Context.OrderItems.ToList();
             return View("List");
         }
        
