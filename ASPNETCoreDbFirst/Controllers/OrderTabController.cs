@@ -1,6 +1,8 @@
 ﻿using ASPNETCoreDbFirst.DbModels;
+using ASPNETCoreDbFirst.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ASPNETCoreDbFirst.Controllers
 {
@@ -12,18 +14,11 @@ namespace ASPNETCoreDbFirst.Controllers
             Context= context;
         }
         // GET: OrderTabController
-        public ActionResult List()
+        public IActionResult List()
         {
-            var show=Context.OrderViewModel.ToList();
-            ViewBag.CustomerId = getcustomerid();
-            return View("List",show);
+            return View("List");
         }
-        public List<Customer>getcustomerid()
-        {
-            var customer = Context.Customers.ToList();
-            return customer;
-
-        }
+       
 
         // GET: OrderTabController/Details/5
         public ActionResult Details(int id)
@@ -34,6 +29,10 @@ namespace ASPNETCoreDbFirst.Controllers
         // GET: OrderTabController/Create
         public ActionResult Create()
         {
+            var result = Context.Customers.ToList().Where(p => !p.IsDeleted.Value == true).Where(o => !o.IsActive == false);
+            var search = Context.Products.ToList().Where(p => !p.IsDeleted.Value == true).Where(o => !o.IsActive == false);
+            ViewBag.CustomerId = new SelectList(result, "CustomerId", "Name");
+            ViewBag.ProductId = new SelectList(search, "ProductId", "Name");
             return View();
         }
 

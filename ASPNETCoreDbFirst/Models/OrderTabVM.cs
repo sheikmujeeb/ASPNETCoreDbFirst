@@ -1,10 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ASPNETCoreDbFirst.DbModels;
 using System.ComponentModel.DataAnnotations.Schema;
-using ASPNETCoreDbFirst.DbModels;
+using System.ComponentModel.DataAnnotations;
 
 namespace ASPNETCoreDbFirst.Models
 {
-    public class OrderViewModel
+    public class OrderTabVM
     {
         [Key]
         public int OrderId { get; set; }
@@ -22,9 +22,7 @@ namespace ASPNETCoreDbFirst.Models
         public decimal? ShippingFee { get; set; }
 
         public decimal? NetTotal { get; set; }
-
         [ForeignKey("StatusTab")]
         public int StatusId { get; set; }
-        
     }
 }

@@ -131,5 +131,7 @@ public partial class R2hErpDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 
-public DbSet<ASPNETCoreDbFirst.Models.OrderViewModel> OrderViewModel { get; set; } = default!;
+public DbSet<ASPNETCoreDbFirst.Models.OrderTabVM> OrderTabVM { get; set; } = default!;
+
+
 }
