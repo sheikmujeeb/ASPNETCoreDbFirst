@@ -33,8 +33,10 @@ namespace ASPNETCoreDbFirst.Controllers
         {
             var result = Context.Customers.ToList().Where(p => !p.IsDeleted.Value == true).Where(o => !o.IsActive == false);
             var search = Context.Products.ToList().Where(p => !p.IsDeleted.Value == true).Where(o => !o.IsActive == false);
+            var find = Context.StatusTabs.ToList();
             ViewBag.CustomerId = new SelectList(result, "CustomerId", "Name");
             ViewBag.ProductId = new SelectList(search, "ProductId", "Name");
+            ViewBag.StatusId = new SelectList(find, "StatusId", "StatusName");
             return View();
         }
 

@@ -4,58 +4,132 @@
     ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase Order</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
 
-<h4>OrderTabVM</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="OrderNumber" class="control-label"></label>
-                <input asp-for="OrderNumber" class="form-control" />
-                <span asp-validation-for="OrderNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CustomerId" class="control-label"></label>
-                <input asp-for="CustomerId" class="form-control" />
-                <span asp-validation-for="CustomerId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="OrderDate" class="control-label"></label>
-                <input asp-for="OrderDate" class="form-control" />
-                <span asp-validation-for="OrderDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="SubTotal" class="control-label"></label>
-                <input asp-for="SubTotal" class="form-control" />
-                <span asp-validation-for="SubTotal" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Discount" class="control-label"></label>
-                <input asp-for="Discount" class="form-control" />
-                <span asp-validation-for="Discount" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ShippingFee" class="control-label"></label>
-                <input asp-for="ShippingFee" class="form-control" />
-                <span asp-validation-for="ShippingFee" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="NetTotal" class="control-label"></label>
-                <input asp-for="NetTotal" class="form-control" />
-                <span asp-validation-for="NetTotal" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="StatusId" class="control-label"></label>
-                <input asp-for="StatusId" class="form-control" />
-                <span asp-validation-for="StatusId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+        .order{
+            padding-right:300px
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+            }
+
+            .form-group select,
+            .form-group input {
+                width: 30%;
+                padding: 8px;
+                box-sizing: border-box;
+            }
+            .status{
+            width: 20%
+            }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        .total-section {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .submit-button {
+            text-align: right;
+            margin-top: 20px;
+        }
+
+            .submit-button button {
+                padding: 10px 20px;
+                background-color: deepskyblue;
+                color: white;
+                border: none;
+                cursor: pointer;
+            }
+
+                .submit-button button:hover {
+                    background-color: #45a049;
+                }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Order Detail</h2>
+        <div class="form-group">
+            <label for="OrderNumber">OrderNumber</label>
+            <input type="text" id="OrderNumber">
+        </div>
+        <div class="form-group">
+            <label class="control-label">Customer</label><span class="mandatory"></span>
+            @Html.DropDownList("CustomerId", (IEnumerable<SelectListItem>)ViewBag.Customer, "--Select--", new { @class = "form-select", required = "required" })
+            <span asp-validation-for="CustomerId" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label for="OrderDate">OrderDate</label>
+            <input type="date" id="OrderDate">
+        </div>
+        <div class="submit-button">
+            <input type="submit" value="Create Order" class="btn btn-primary" />
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>OrderId</th>
+                    <th>ProductId</th>
+                    <th>Quantity</th>
+                    <th>UnitPrice</th>
+                    <th>TotalAmount</th>
+                    <th>SubTotal</th>
+                    <th>Discount</th>
+                    <th>ShippingFee</th>
+                    <th>NetTotal</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+               
+            </tbody>
+        </table>
     </div>
-</div>
+    <div class="status">
+        <label class="control-label">Status</label><span class="mandatory"></span>
+        @Html.DropDownList("StatusId", (IEnumerable<SelectListItem>)ViewBag.StatusId, "--Select--", new { @class = "form-select", required = "required" })
+        <span asp-validation-for="StatusId" class="text-danger"></span>
+    </div>
+    <div class="submit-button">
+        <input type="submit" value="Save" class="btn btn-primary" />
+    </div>
+</body>
+</html>
 
