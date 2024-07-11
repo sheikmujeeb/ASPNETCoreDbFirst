@@ -19,9 +19,11 @@
             max-width: 800px;
             margin: auto;
         }
-        .order{
-            padding-right:300px
+
+        .order {
+            padding-right: 300px
         }
+
         .form-group {
             margin-bottom: 10px;
         }
@@ -37,9 +39,11 @@
                 padding: 8px;
                 box-sizing: border-box;
             }
-            .status{
+
+        .status {
             width: 20%
-            }
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -70,16 +74,13 @@
         }
 
             .submit-button button {
-                padding: 10px 20px;
-                background-color: deepskyblue;
+                padding: 10px;
+                background-color: greenyellow;
                 color: white;
                 border: none;
                 cursor: pointer;
             }
 
-                .submit-button button:hover {
-                    background-color: #45a049;
-                }
     </style>
 </head>
 <body>
@@ -100,25 +101,42 @@
             <input type="date" id="OrderDate">
         </div>
         <div class="submit-button">
-            <input type="submit" value="Create Order" class="btn btn-primary" />
+            <input type="submit" value="Add" onclick="addRow()"class="btn btn-primary" />
         </div>
         <table>
             <thead>
                 <tr>
-                    <th>OrderId</th>
-                    <th>ProductId</th>
-                    <th>Quantity</th>
-                    <th>UnitPrice</th>
-                    <th>TotalAmount</th>
-                    <th>SubTotal</th>
-                    <th>Discount</th>
-                    <th>ShippingFee</th>
-                    <th>NetTotal</th>
-                    
+                    <th>
+                        @Html.DisplayNameFor(model => model.OrderId)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.OrderNumber)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.CustomerId)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.OrderDate)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.SubTotal)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Discount)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.ShippingFee)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.NetTotal)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.StatusId)
+                    </th>
+
                 </tr>
             </thead>
             <tbody>
-               
             </tbody>
         </table>
     </div>
@@ -132,4 +150,86 @@
     </div>
 </body>
 </html>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        function addRow() {
+            var newRow = `<tr>
+                        <td><input name="ProductId" type="number" class="form-control" /></td>
+                        <td><input name="Quantity" type="number" class="form-control" /></td>
+                        <td><input name="UnitPrice" type="number" step="0.01" class="form-control" /></td>
+                        <td><input name="TotalAmount" type="number" step="0.01" class="form-control" /></td>
+                        <td><input name="SubTotal" type="number" step="0.01" class="form-control" /></td>
+                        <td><input name="Discount" type="number" step="0.01" class="form-control" /></td>
+                        <td><input name="ShippingFee" type="number" step="0.01" class="form-control" /></td>
+                        <td><input name="NetTotal" type="number" step="0.01" class="form-control" /></td>
+                        <td><button type="button" class="btn btn-danger" onclick="removeRow(this)">Remove</button></td>
+                    </tr>`;
+            $('#orderItems tbody').append(newRow);
+        }
+
+        function removeRow(button) {
+            $(button).closest('tr').remove();
+        }
+
+        function saveOrder() {
+            var orderTab = {
+                OrderNumber: $("#OrderTab_OrderNumber").val(),
+                Customer: $("#OrderTab_Customer").val(),
+                OrderDate: $("#OrderTab_OrderDate").val(),
+                Status: $("#OrderTab_Status").val()
+            };
+
+            $.ajax({
+                url: '@Url.Action("SaveOrderTab", "Order")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(orderTab),
+                success: function (response) {
+                    if (response.success) {
+                        var orderItems = [];
+                        $('#orderItems tbody tr').each(function () {
+                            var item = {
+                                ProductId: $(this).find('input[name="ProductId"]').val(),
+                                Quantity: $(this).find('input[name="Quantity"]').val(),
+                                UnitPrice: $(this).find('input[name="UnitPrice"]').val(),
+                                TotalAmount: $(this).find('input[name="TotalAmount"]').val(),
+                                SubTotal: $(this).find('input[name="SubTotal"]').val(),
+                                Discount: $(this).find('input[name="Discount"]').val(),
+                                ShippingFee: $(this).find('input[name="ShippingFee"]').val(),
+                                NetTotal: $(this).find('input[name="NetTotal"]').val()
+                           $('#orderItems tbody tr').append(item);
+
+                            };
+                            orderItems.push(item);
+                        });
+
+                        $.ajax({
+                            url: '@Url.Action("SaveOrderItems", "Order")',
+                            type: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify(orderItems),
+                            success: function (response) {
+                                if (response.success) {
+                                    window.location.href = '@Url.Action("Success", "Order")';
+                                } else {
+                                    alert("Failed to save order items");
+                                }
+                            }
+                        });
+                    } else {
+                        alert("Failed to save order tab");
+                    }
+                }
+            });
+        }
+    </script>
+}
+
+
 
