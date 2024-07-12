@@ -15,10 +15,12 @@ namespace ASPNETCoreDbFirst.Models
 
         public DateTime CreatedOn { get; set; }
 
+
         public DateTime? UpdatedOn { get; set; }
 
         public bool? IsDeleted { get; set; }
         [Required]
         public bool IsActive { get; set; }
+        public decimal? UnitPrice { get; set; }
     }
 }

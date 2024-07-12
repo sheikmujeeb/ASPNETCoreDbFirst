@@ -24,5 +24,14 @@ namespace ASPNETCoreDbFirst.Models
         public decimal? NetTotal { get; set; }
         [ForeignKey("StatusTab")]
         public int StatusId { get; set; }
+        public int OrderItemId { get; set; }
+
+        public int? ProductId { get; set; }
+
+        public int? Quantity { get; set; }
+
+        public decimal? UnitPrice { get; set; }
+
+        public decimal TotalPrice { get; set; }
     }
 }

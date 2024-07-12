@@ -45,6 +45,7 @@ namespace ASPNETCoreDbFirst.Controllers
                 Product products = new Product();
                 products.Name = productvm.Name;
                 products.Code = productvm.Code;
+                products.UnitPrice = productvm.UnitPrice;
                 products.IsActive = productvm.IsActive;
                 products.CreatedOn = DateTime.Now;
                 products.UpdatedOn = null;

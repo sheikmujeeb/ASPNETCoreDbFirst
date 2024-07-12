@@ -34,16 +34,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-app.UseSession();
-
-app.Use(async (context, next) =>
-{
-    context.Response.Headers.Add("Content-Security-Policy", "frame-ancestors 'self' http://your-trusted-domain.com");
-    context.Response.Headers.Add("X-Frame-Options", "ALLOW-FROM http://your-trusted-domain.com");
-    await next();
-});
 
 app.UseAuthorization();
+
+app.UseSession();
 
 app.MapControllerRoute(
     name: "default",

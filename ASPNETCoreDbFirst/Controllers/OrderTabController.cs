@@ -11,7 +11,7 @@ namespace ASPNETCoreDbFirst.Controllers
     public class OrderTabController : Controller
     {
         private readonly R2hErpDbContext Context;
-        private int _apiUrl;
+       
 
         public OrderTabController(R2hErpDbContext context)
         {
@@ -20,7 +20,7 @@ namespace ASPNETCoreDbFirst.Controllers
         // GET: OrderTabController
         public IActionResult List()
         {
-            return View();
+            return View("Create");
         }
 
 
@@ -35,93 +35,34 @@ namespace ASPNETCoreDbFirst.Controllers
         {
             var result = Context.Customers.ToList().Where(p => !p.IsDeleted.Value == true).Where(o => !o.IsActive == false);
             var search = Context.Products.ToList().Where(p => !p.IsDeleted.Value == true).Where(o => !o.IsActive == false);
+            var find = Context.StatusTabs.ToList();
             ViewBag.CustomerId = new SelectList(result, "CustomerId", "Name");
             ViewBag.ProductId = new SelectList(search, "ProductId", "Name");
+            ViewBag.StatusId = new SelectList(find, "StatusId", "StatusName");
             return View();
         }
 
         // POST: OrderTabController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([FromBody] OrderTabVM orderTab)
+        public async Task<IActionResult> Create(OrderTabVM orderTab)
         {
-            try
+            if (ModelState.IsValid)
             {
-                if (ModelState.IsValid)
-                {
-                    if (orderTab.Flag== 1)
-                    {
-                        OrderTab order = new OrderTab();
-                        using (var httpClient = new HttpClient())
-                        {
-                            using (var response = await httpClient.GetAsync(_apiSettings.Value.BaseUrl + "Order/" + orderTab.OrderId))
-                            {
-                                string apiResponse = await response.Content.ReadAsStringAsync();
-                                order = JsonConvert.DeserializeObject<OrderTab>(apiResponse);
-                            }
-                        }
-                        if (order == null || order.OrderId == 0)
-                        {
-                            ModelState.AddModelError("OrderName", "Please add valid Product!");
-                            return Json(ModelState);
-                        }
-                        OrderTab tab = new OrderTab();
-                        tab.OrderNumber = order.OrderNumber;
-                        tab.CustomerId = order.CustomerId;
-                        tab.OrderDate = order.OrderDate;
-                        tab.SubTotal = order.SubTotal;
-                        tab.Discount = order.Discount;
-                        tab.ShippingFee = order.ShippingFee; ;
-                        tab.NetTotal = Math.Round((decimal)(order.SubTotal - order.Discount + order.ShippingFee);
-                        tab.StatusId = order.StatusId;
+                Product pro=new Product();
+                OrderTabVM order = new OrderTabVM();
+                order.OrderNumber = orderTab.OrderNumber;   
+                order.CustomerId = orderTab.CustomerId;
+                order.OrderDate = orderTab.OrderDate;
+                order.ProductId = orderTab.ProductId;
+                order.Quantity = orderTab.Quantity;
+                order.UnitPrice = pro.UnitPrice;
+                Context.Add(order);
 
-                        List<OrderTab> orderlist = new List<OrderTab>();
-                        if (HttpContext.Session.GetString("Key") == null)
-                            orderlist.Add(tab);
-                        else
-                        {
-                            orderlist = JsonConvert.DeserializeObject<List<OrderTab>>(HttpContext.Session.GetString("Key"));
-                            orderlist.Add(tab);
-                        }
-                        var serializedRecords = JsonConvert.SerializeObject(orderlist);
-                        HttpContext.Session.SetString("POI", serializedRecords);
-
-                        return Json(orderlist.ToList());
-                    }
-                }
-                else if (orderTab.Flag == 2)
-                {
-                    var orderlist = JsonConvert.DeserializeObject<List<OrderTab>>(HttpContext.Session.GetString("Key"));
-                    var serializedRecords = JsonConvert.SerializeObject(orderlist);
-                    HttpContext.Session.SetString("POI", serializedRecords);
-
-                    return Json(orderlist);
-                }
-                else
-                {
-                    List<OrderTab> list = new List<OrderTab>();
-                    using (var httpClient = new HttpClient())
-                    {
-                        using (var response = await httpClient.GetAsync(_apiSettings.Value.BaseUrl + "PurchaseOrderItem/GetPurchaseOrderItems?poId=" + vm.PoId))
-                        {
-                            string apiResponse = await response.Content.ReadAsStringAsync();
-                            list = JsonConvert.DeserializeObject<List<OrderTab>>(apiResponse);
-                        }
-                    }
-                    var serializedRecords = JsonConvert.SerializeObject(list);
-                    HttpContext.Session.SetString("Key", serializedRecords);
-
-                    return Json(list);
-                }
-
-                return Json(ModelState);
+                await Context.SaveChangesAsync();
+                return RedirectToAction(nameof(Create));
             }
-            
-            catch (Exception ex)
-            {
-                return Json("Error: " + ex.Message);
-
-            }
+            return View(orderTab);
         }
 
     // GET: OrderTabController/Edit/5
