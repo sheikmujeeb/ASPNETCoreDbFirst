@@ -6,6 +6,27 @@
 
 <html lang="en">
 <head>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#Quantity, #UnitPrice').on('input', function () {
+                var quantity = parseFloat($('#Quantity').val()) || 0;
+                var unitprice = parseFloat($('#UnitPrice').val()) || 0;
+                var totalAmount = quantity * unitprice;
+                $('#TotalPrice').val(totalAmount);
+            });
+        });
+        $(document).ready(function () {
+            $('#SubTotal, #Discount, #ShippingFee').on('input', function () {
+                var subtotal = parseFloat($('#SubTotal').val()) || 0;
+                var discount = parseFloat($('#Discount').val()) || 0;
+                var shippingfee = parseFloat($('#ShippingFee').val()) || 0;
+                var totalAmount = subtotal - discount + shippingfee;
+                $('#NetTotal').val(totalAmount);
+            });
+        });
+
+    </script>
    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,30 +34,46 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 30px;
         }
+        .table{
+            border-style: groove;
 
-        .container,.package,.status{
+        }
+      
+    
+        .container,.package{
             display: flex;
             justify-content: space-evenly;
-        }
 
-            .container.form-group,.package.form-group{
+        }
+       
+
+        .calculation{
+            display:inline-block;
+            align-items:right;
+            float: inline-end;
+        }
+        .form-size{
+            display:flex;
+            flex-direction: row;
+           
+        }
+        .form-adjust{
+            justify-content: space-between;
+            display: block;
+        }
+         .container.form-group,.package.form-group{
                 display: inline-block;
                 align-items: center;
-                justify-items: space-between
+                justify-items: space-between;
             }
-            .status.form-adjust{
-               display:inline-flex;
-               justify-items:space-evenly;
-               position: absolute; 
-               bottom: 0
-            }
-           
+
     </style>
+
 </head>
 <body>
-    <h5>Purchase Order</h5>
+    <h5><b>Purchase Order</b></h5>
     <br />
     <div class="container">
          <div class="form-group">
@@ -55,7 +92,7 @@
             <span asp-validation-for="OrderDate" class="text-danger"></span>
         </div>
       </div><br />
-    <h5>Order Items</h5>
+    <h5><b>Order Items</b></h5>
     <br />
     
       <div class="package">
@@ -83,6 +120,9 @@
         <thead>
             <tr>
                 <th>
+                    @Html.DisplayName("Edit")
+                </th>
+                <th>
                     @Html.DisplayNameFor(model => model.ProductId)
                 </th>
                 <th>
@@ -97,8 +137,13 @@
             </tr>
         </thead>
        
-  @* @foreach (var item in Model.OrderTabVM) {
+  @* @foreach (var item in ViewBag.OrderTabVM) {
         <tr>
+        <td>
+        <a asp-controller="OrderTab" asp-action="Update" asp-route-id="@item.Id"  method="get" class="btn btn-outline-primary"><i class="fa fa-folder" aria-hidden="true"></i>
+
+        </a>
+        </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Product.Id)
                 </td>
@@ -112,22 +157,39 @@
                     @Html.DisplayFor(modelItem => item.SubTotal)
                 </td>
                  <td>
-                 <a asp-action="Edit" asp-route-id="@item.OrderItemId">Edit</a> |
-                 <a asp-action="Details" asp-route-id="@item.OrderItemId">Details</a> |
-                 <a asp-action="Delete" asp-route-id="@item.OrderItemId">Delete</a>
-                </td>
           </tr>  *@ 
-       
+
     </table>
-        <div class="status">
-            <div class="form-adjust">
-            <label class="control-label">Status</label><span class="mandatory"></span>
-             @Html.DropDownList("StatusId", (IEnumerable<SelectListItem>)ViewBag.StatusId, "--Select--", new { @class = "form-select", required = "required" })
-           <span asp-validation-for="StatusId" class="text-danger"></span>
-           </div><br>
-           <div class="form-adjust">
-            <input type="submit" value="Save" class="btn btn-primary" />
-           </div>
+     <div class="calculation">
+        <div class="form-size">
+            <label asp-for="SubTotal" class="control-label"></label>
+            <input asp-for="SubTotal" class="form-control" readonly />
+            <span asp-validation-for="SubTotal" class="text-danger"></span>
         </div>
+        <div class="form-size">
+            <label asp-for="Discount" class="control-label"></label>
+            <input asp-for="Discount" class="form-control"  />
+            <span asp-validation-for="Discount" class="text-danger"></span>
+        </div>
+        <div class="form-size">
+            <label asp-for="ShippingFee" class="control-label"></label>
+            <input asp-for="ShippingFee" class="form-control" />
+            <span asp-validation-for="ShippingFee" class="text-danger"></span>
+        </div>
+        <div class="form-size">
+            <label asp-for="NetTotal" class="control-label"></label>
+            <input asp-for="NetTotal" class="form-control" readonly />
+            <span asp-validation-for="NetTotal" class="text-danger"></span>
+        </div>
+     <div class="form-adjust">
+        <label class="control-label">Status</label><span class="mandatory"></span>
+        @Html.DropDownList("StatusId", (IEnumerable<SelectListItem>)ViewBag.StatusId, "--Select--", new { @class = "form-select", required = "required" })
+        <span asp-validation-for="StatusId" class="text-danger"></span>
+    </div>
+    <div class="form-adjust">
+        <input type="submit" value="Save" class="btn btn-primary" />
+    </div>
+    </div>
+
 </body>
 </html>

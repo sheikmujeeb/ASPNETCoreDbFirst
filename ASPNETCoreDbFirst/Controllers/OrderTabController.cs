@@ -58,7 +58,7 @@ namespace ASPNETCoreDbFirst.Controllers
                 order.Quantity = orderTab.Quantity;
                 order.UnitPrice = pro.UnitPrice;
                 Context.Add(order);
-
+                
                 await Context.SaveChangesAsync();
                 return RedirectToAction(nameof(Create));
             }

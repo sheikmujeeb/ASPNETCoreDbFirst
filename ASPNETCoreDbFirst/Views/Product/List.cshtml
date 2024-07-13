@@ -5,7 +5,11 @@
 }
 
 <h1>List</h1>
-
+<style>
+    .table {
+        border-style: groove;
+    }
+</style>
 <p>
     <a asp-action="Create">Create New</a>
 </p>
@@ -22,14 +26,14 @@
                 @Html.DisplayNameFor(model => model.Code)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.UnitPrice)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.CreatedOn)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.UpdatedOn)
             </th>
-            @* <th>
-                @Html.DisplayNameFor(model => model.IsDeleted)
-            </th> *@
             <th>
                 @Html.DisplayNameFor(model => model.IsActive)
             </th>
@@ -48,15 +52,15 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Code)
             </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UnitPrice)
+                </td>
             <td>
                 @Html.DisplayFor(modelItem => item.CreatedOn)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.UpdatedOn)
             </td>
-            @* <td>
-                @Html.DisplayFor(modelItem => item.IsDeleted)
-            </td> *@
             <td>
                @if(item.IsActive)
                     {
