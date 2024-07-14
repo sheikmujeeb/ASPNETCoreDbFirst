@@ -16,6 +16,7 @@
                 $('#TotalPrice').val(totalAmount);
             });
         });
+
         $(document).ready(function () {
             $('#SubTotal, #Discount, #ShippingFee').on('input', function () {
                 var subtotal = parseFloat($('#SubTotal').val()) || 0;
@@ -25,9 +26,8 @@
                 $('#NetTotal').val(totalAmount);
             });
         });
-
     </script>
-   
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -36,47 +36,44 @@
             font-family: Arial, sans-serif;
             margin: 30px;
         }
-        .table{
-            border-style: groove;
 
+        .table {
+            border-style: groove;
         }
-      
-    
-        .container,.package{
+
+        .container, .package {
             display: flex;
             justify-content: space-evenly;
-
         }
-       
 
-        .calculation{
-            display:inline-block;
-            align-items:right;
+        .calculation {
+            display: inline-block;
+            align-items: right;
             float: inline-end;
         }
-        .form-size{
-            display:flex;
+
+        .form-size {
+            display: flex;
             flex-direction: row;
-           
         }
-        .form-adjust{
+
+        .form-adjust {
             justify-content: space-between;
             display: block;
         }
-         .container.form-group,.package.form-group{
-                display: inline-block;
-                align-items: center;
-                justify-items: space-between;
-            }
 
+        .container.form-group, .package.form-group {
+            display: inline-block;
+            align-items: center;
+            justify-items: space-between;
+        }
     </style>
-
 </head>
 <body>
     <h5><b>Purchase Order</b></h5>
     <br />
     <div class="container">
-         <div class="form-group">
+        <div class="form-group">
             <label asp-for="OrderNumber" class="control-label"></label>
             <input asp-for="OrderNumber" class="form-control" />
             <span asp-validation-for="OrderNumber" class="text-danger"></span>
@@ -88,14 +85,14 @@
         </div>
         <div class="form-group">
             <label asp-for="OrderDate" class="control-label"></label>
-            <input asp-for="OrderDate" value="@DateTime.Now"class="form-control" />
+            <input asp-for="OrderDate" value="@DateTime.Now" class="form-control" />
             <span asp-validation-for="OrderDate" class="text-danger"></span>
         </div>
-      </div><br />
+    </div>
+    <br />
     <h5><b>Order Items</b></h5>
     <br />
-    
-      <div class="package">
+    <div class="package">
         <div class="form-group">
             <label class="control-label">Products</label><span class="mandatory"></span>
             @Html.DropDownList("ProductId", (IEnumerable<SelectListItem>)ViewBag.Product, "--Select--", new { @class = "form-select", required = "required" })
@@ -108,59 +105,31 @@
         </div>
         <div class="form-group">
             <label asp-for="UnitPrice" class="control-label"></label>
-            <input asp-for="UnitPrice" class="form-control" readonly/>
+            <input asp-for="UnitPrice" class="form-control" readonly />
             <span asp-validation-for="UnitPrice" class="text-danger"></span>
         </div>
-        <div class="form-button"><br />
-            <a asp-controller="OrderTab" asp-action="Create"  class="btn btn-primary h-60"><i class="fa-solid fa-plus"></i>Add Item</a>
+        <div class="form-button">
+            <br />
+            <button type="button" id="addItemBtn" class="btn btn-primary">Add Item</button>
         </div>
- </div><br /><br />
- <table class="table">
-   
+    </div>
+    <br />
+    <br />
+    <table class="table">
         <thead>
             <tr>
-                <th>
-                    @Html.DisplayName("Edit")
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.ProductId)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Quantity)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.UnitPrice)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.TotalPrice)
-                </th>
+                <th>Edit</th>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Total Price</th>
             </tr>
         </thead>
-       
-  @* @foreach (var item in ViewBag.OrderTabVM) {
-        <tr>
-        <td>
-        <a asp-controller="OrderTab" asp-action="Update" asp-route-id="@item.Id"  method="get" class="btn btn-outline-primary"><i class="fa fa-folder" aria-hidden="true"></i>
-
-        </a>
-        </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Product.Id)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Quantity)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.UnitPrice)
-                </td>
-                 <td>
-                    @Html.DisplayFor(modelItem => item.SubTotal)
-                </td>
-                 <td>
-          </tr>  *@ 
-
+        <tbody id="orderItemsTable">
+            @* Dynamically populated rows *@
+        </tbody>
     </table>
-     <div class="calculation">
+    <div class="calculation">
         <div class="form-size">
             <label asp-for="SubTotal" class="control-label"></label>
             <input asp-for="SubTotal" class="form-control" readonly />
@@ -168,7 +137,7 @@
         </div>
         <div class="form-size">
             <label asp-for="Discount" class="control-label"></label>
-            <input asp-for="Discount" class="form-control"  />
+            <input asp-for="Discount" class="form-control" />
             <span asp-validation-for="Discount" class="text-danger"></span>
         </div>
         <div class="form-size">
@@ -181,15 +150,48 @@
             <input asp-for="NetTotal" class="form-control" readonly />
             <span asp-validation-for="NetTotal" class="text-danger"></span>
         </div>
-     <div class="form-adjust">
-        <label class="control-label">Status</label><span class="mandatory"></span>
-        @Html.DropDownList("StatusId", (IEnumerable<SelectListItem>)ViewBag.StatusId, "--Select--", new { @class = "form-select", required = "required" })
-        <span asp-validation-for="StatusId" class="text-danger"></span>
-    </div>
-    <div class="form-adjust">
-        <input type="submit" value="Save" class="btn btn-primary" />
-    </div>
+        <div class="form-adjust">
+            <label class="control-label">Status</label><span class="mandatory"></span>
+            @Html.DropDownList("StatusId", (IEnumerable<SelectListItem>)ViewBag.StatusId, "--Select--", new { @class = "form-select", required = "required" })
+            <span asp-validation-for="StatusId" class="text-danger"></span>
+        </div>
+        <div class="form-adjust">
+            <input type="submit" value="Save" class="btn btn-primary" />
+        </div>
     </div>
 
+    <script>
+        $(document).ready(function () {
+            $('#addItemBtn').click(function () {
+                var orderId = @Model.OrderNumber;
+                var productId = $('#ProductId').val();
+                var quantity = $('#Quantity').val();
+                var unitPrice = $('#UnitPrice').val();
+
+                $.ajax({
+                    url: '@Url.Action("AddOrderItem", "Order")',
+                    type: 'POST',
+                    data: {
+                        orderId: orderId,
+                        productId: productId,
+                        quantity: quantity,
+                        unitPrice: unitPrice
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            var newRow = '<tr>' +
+                                '<td><a href="#" class="btn btn-outline-primary"><i class="fa fa-folder" aria-hidden="true"></i></a></td>' +
+                                '<td>' + response.item.ProductId + '</td>' +
+                                '<td>' + response.item.Quantity + '</td>' +
+                                '<td>' + response.item.UnitPrice + '</td>' +
+                                '<td>' + response.item.TotalPrice + '</td>' +
+                                '</tr>';
+                            $('#orderItemsTable').append(newRow);
+                        }
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
