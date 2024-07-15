@@ -36,16 +36,27 @@
             $('#SubTotal, #Discount, #ShippingFee').on('input', function () {
                 calculateNetAmount();
             });
+            // $('#ProductId').change(function () {
+            //     GetUnitPrice()
+            // });
 
-            // function setIndianDateTime() {
-            //     var now = new Date();
-            //     var ISTOffset = 5.5 * 60 * 60 * 1000;
-            //     var ISTTime = new Date(now.getTime() + ISTOffset);
-            //     var formattedDate = ISTTime.toISOString().slice(0, 19);
-            //     $('#OrderDate').val(formattedDate);
-            // }
+            // function GetUnitPrice() {
+            //     var selectedValue = $("#ProductId").val();
+            //     $.ajax({
+            //         url: '@Url.Action("GetUnitPrice", "OrderTab")',
+            //         type: 'GET',
+            //         data: {
+            //             ProductId: selectedValue,
+            //         },
+            //         success: function (data) {
 
-            // setIndianDateTime();
+            //             $('#UnitPrice').val(data[0].unitprice)
+
+            //         }
+            //     });
+
+
+            
         });
     </script>
 
@@ -161,7 +172,7 @@
             </tr>
         </thead>
 
-        @* @foreach (var item in ViewBag.OrderTabVM) {
+       @*  @foreach (var item in ViewBag.OrderTabVM) {
         <tr>
         <td>
         <a asp-controller="OrderTab" asp-action="Update" asp-route-id="@item.Id"  method="get" class="btn btn-outline-primary"><i class="fa fa-folder" aria-hidden="true"></i>
@@ -181,8 +192,8 @@
         @Html.DisplayFor(modelItem => item.SubTotal)
         </td>
         <td>
-        </tr>  *@
-
+        </tr>  
+        } *@
     </table>
     <div class="calculation">
         <div class="form-size">
