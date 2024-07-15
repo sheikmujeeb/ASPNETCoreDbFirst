@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ASPNETCoreDbFirst.Models
 {
-    public partial class OrderTabVM
+    public  class OrderTabVM
     {
         [Key]
         public int OrderId { get; set; }
@@ -32,9 +32,6 @@ namespace ASPNETCoreDbFirst.Models
         public decimal TotalPrice { get; set; }
         [ForeignKey("StatusTab")]
         public int StatusId { get; set; }
-      
-
-        public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
     }
 }

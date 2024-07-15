@@ -3,7 +3,6 @@
 @{
     ViewData["Title"] = "Create";
 }
-
 <html lang="en">
 <head>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -26,12 +25,12 @@
             });
 
             $('#ProductId').change(function () {
-                getProductByUnitPrice()
+                getunitprice()
             });
-            var getProductByUnitPrice = function () {
+            var getunitprice = function () {
                 var selectedValue = $("#ProductId").val();
                 $.ajax({
-                    url: '@Url.Action("getProductByUnitPrice", "OrderTab")',
+                    url: '@Url.Action("getunitprice", "OrderTab")',
                     type: 'GET',
                     data: {
                         ProductId: selectedValue,
@@ -45,7 +44,6 @@
             }
 
         });
-
 
     </script>
 

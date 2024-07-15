@@ -26,10 +26,10 @@ namespace ASPNETCoreDbFirst.Controllers
             var result = Context.Customers.ToList().Where(p => !p.IsDeleted == true).Where(o => !o.IsActive == false);
             var response = Context.Products.ToList().Where(p => !p.IsDeleted == true).Where(o => !o.IsActive == false);
             var find = Context.StatusTabs.ToList();
-            ViewBag.CustomersId = new SelectList(result, "CustomersId", "Name");
-            ViewBag.ProductId = new SelectList(response, "ProductsId", "Name");
+            ViewBag.CustomerId = new SelectList(result, "CustomerId", "Name");
+            ViewBag.ProductId = new SelectList(response, "ProductId", "Name");
             ViewBag.StatusId = new SelectList(find, "StatusId", "StatusName");
-            return View("Create");
+            return View();
 
         }
 
@@ -45,8 +45,8 @@ namespace ASPNETCoreDbFirst.Controllers
             var result = Context.Customers.ToList().Where(p => !p.IsDeleted == true).Where(o => !o.IsActive == false);
             var response = Context.Products.ToList().Where(p => !p.IsDeleted == true).Where(o => !o.IsActive == false);
             var find = Context.StatusTabs.ToList();
-            ViewBag.CustomersId = new SelectList(result, "CustomersId", "Name");
-            ViewBag.ProductId = new SelectList(response, "ProductsId", "Name");
+            ViewBag.CustomerId = new SelectList(result, "CustomerId", "Name");
+            ViewBag.ProductId = new SelectList(response, "ProductId", "Name");
             ViewBag.StatusId = new SelectList(find, "StatusId", "StatusName");
             return View("Create");
         }
@@ -54,32 +54,32 @@ namespace ASPNETCoreDbFirst.Controllers
         // POST: OrderTabController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(OrderTabVM oredertabvm)
+        public async Task<ActionResult> Create(OrderTabVM ordertabvm)
         {
             var result = Context.Customers.ToList().Where(p => !p.IsDeleted == true).Where(o => !o.IsActive == false);
             var response = Context.Products.ToList().Where(p => !p.IsDeleted == true).Where(o => !o.IsActive == false);
             var find = Context.StatusTabs.ToList();
             OrderTab order = new OrderTab();
 
-            if (oredertabvm != null)
+            if (ordertabvm != null)
             {
-                order.OrderNumber = oredertabvm.OrderNumber;
-                order.CustomerId = oredertabvm.CustomerId;
-                order.OrderDate = oredertabvm.OrderDate;
-                order.SubTotal = oredertabvm.SubTotal;
-                order.Discount = oredertabvm.Discount;
-                order.ShippingFee = oredertabvm.ShippingFee;
-                order.NetTotal = oredertabvm.NetTotal;
-                order.StatusId = oredertabvm.StatusId;
+                order.OrderNumber = ordertabvm.OrderNumber;
+                order.CustomerId = ordertabvm.CustomerId;
+                order.OrderDate = ordertabvm.OrderDate;
+                order.SubTotal = ordertabvm.SubTotal;
+                order.Discount = ordertabvm.Discount;
+                order.ShippingFee = ordertabvm.ShippingFee;
+                order.NetTotal = ordertabvm.NetTotal;
+                order.StatusId = ordertabvm.StatusId;
                 Context.Add(order);
                 Context.SaveChangesAsync();
                 return RedirectToAction(nameof(Create));
 
             }
-            ViewBag.CustomersId = new SelectList(result, "CustomersId", "Name");
-            ViewBag.ProductId = new SelectList(response, "ProductsId", "Name");
+            ViewBag.CustomerId = new SelectList(result, "CustomerId", "Name");
+            ViewBag.ProductId = new SelectList(response, "ProductId", "Name");
             ViewBag.StatusId = new SelectList(find, "StatusId", "StatusName");
-            return View(oredertabvm);
+            return View(ordertabvm);
         }
         //public async Task<IActionResult> AddProduct(OrderTabVM vm)
         //{
@@ -156,7 +156,7 @@ namespace ASPNETCoreDbFirst.Controllers
         //    }
         //}
 
-        public JsonResult getProductByUnitPrice(int ProductId)
+        public JsonResult getunitprice(int ProductId)
         {
             var details = (Context.Products.Where(option => option.ProductId == ProductId));
             return Json(details);

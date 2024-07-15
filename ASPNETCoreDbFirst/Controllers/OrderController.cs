@@ -88,8 +88,8 @@ namespace ASPNETCoreDbFirst.Controllers
                 ordervm.TotalAmount= find.TotalAmount;
                 ordervm.OrderDate = find.OrderDate;
 
-                var result = Context.Customers.ToList();      //.Where(p => !p.IsDeleted.Value == true).Where(o => !o.IsActive == false);
-                var search = Context.Products.ToList();      //.Where(p => !p.IsDeleted.Value == true).Where(o => !o.IsActive == false);
+                var result = Context.Customers.ToList();  
+                var search = Context.Products.ToList();      
                 ViewBag.CustomerId = new SelectList(result, "CustomerId", "Name");
                 ViewBag.ProductId = new SelectList(search, "ProductId", "Name");
                 return View(ordervm);

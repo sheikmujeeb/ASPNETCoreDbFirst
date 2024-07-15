@@ -21,6 +21,6 @@ namespace ASPNETCoreDbFirst.Models
         public bool? IsDeleted { get; set; }
         [Required]
         public bool IsActive { get; set; }
-        public decimal? UnitPrice { get; set; }
+        public decimal UnitPrice { get; set; }
     }
 }
