@@ -10,10 +10,10 @@ namespace ASPNETCoreDbFirst.Models
         public int OrderId { get; set; }
 
         public string? OrderNumber { get; set; }
-        [ForeignKey("Customers")]
+        [ForeignKey("CustomerVM")]
         public int CustomerId { get; set; }
         [ForeignKey("ProductVM")]
-        public int? ProductId { get; set; }
+        public int ProductId { get; set; }
         public int OrderItemId { get; set; }
 
         public DateTime OrderDate { get; set; }

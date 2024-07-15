@@ -5,6 +5,7 @@ namespace ASPNETCoreDbFirst.Models
 {
     public class CustomerVM
     {
+        [Key]
         public int CustomerId { get; set; }
         [Required]
         public string? Name { get; set; }
