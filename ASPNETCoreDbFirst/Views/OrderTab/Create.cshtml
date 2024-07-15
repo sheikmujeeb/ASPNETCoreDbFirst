@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Create";
 }
+
 <html lang="en">
 <head>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -23,21 +24,20 @@
                 var totalAmount = subtotal - discount + shippingfee;
                 $('#NetTotal').val(totalAmount);
             });
-
-            $('#ProductId').change(function () {
-                getunitprice()
+              $('#ProductId').change(function () {
+                GetUnitPrice()
             });
-            var getunitprice = function () {
+            var GetUnitPrice = function () {
                 var selectedValue = $("#ProductId").val();
                 $.ajax({
-                    url: '@Url.Action("getunitprice", "OrderTab")',
+                    url: '@Url.Action("GetUnitPrice", "OrderTab")',
                     type: 'GET',
                     data: {
                         ProductId: selectedValue,
                     },
                     success: function (data) {
-
-                        $('#UnitPrice').val(data[0].unitPrice)
+                        alert("Successful");
+                        $('#UnitPrice').val(data[0].unitprice);
 
                     }
                 });
@@ -45,7 +45,9 @@
 
         });
 
+
     </script>
+
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -88,7 +90,6 @@
             align-items: center;
             justify-items: space-between;
         }
-
     </style>
 
 </head>
@@ -129,7 +130,7 @@
         </div>
         <div class="form-group">
             <label asp-for="UnitPrice" class="control-label"></label>
-            <input asp-for="UnitPrice" id="UnitPrice" class="form-control" />
+            <input asp-for="UnitPrice" id="UnitPrice" class="form-control" readonly />
             <span asp-validation-for="UnitPrice" class="text-danger"></span>
         </div>
         <div class="form-button">
@@ -161,16 +162,15 @@
             </tr>
         </thead>
 
-      @*   @foreach (var item in ViewBag.OrderTabVM)
-        {
-            <tr>
-                <td>
+        @* @foreach (var item in ViewBag.OrderTabVM) {
+        <tr>
+        <td>
         <a asp-controller="OrderTab" asp-action="Update" asp-route-id="@item.Id"  method="get" class="btn btn-outline-primary"><i class="fa fa-folder" aria-hidden="true"></i>
 
         </a>
         </td>
         <td>
-        @Html.DisplayFor(modelItem => item.ProductId)
+        @Html.DisplayFor(modelItem => item.Product.Id)
         </td>
         <td>
         @Html.DisplayFor(modelItem => item.Quantity)
@@ -179,11 +179,11 @@
         @Html.DisplayFor(modelItem => item.UnitPrice)
         </td>
         <td>
-        @Html.DisplayFor(modelItem => item.TotalPrice)
+        @Html.DisplayFor(modelItem => item.SubTotal)
         </td>
         <td>
-        </tr>  
-        } *@
+        </tr>  *@
+
     </table>
     <div class="calculation">
         <div class="form-size">

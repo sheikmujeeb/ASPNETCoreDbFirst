@@ -103,17 +103,17 @@ namespace ASPNETCoreDbFirst.Controllers
         //                    ModelState.AddModelError("ProductName", "Please add valid Product!");
         //                    return Json(ModelState);
         //                }
-        //                OrderedProduct op = new OrderedProduct();
+        //                OrderTab op = new OrderTab();
         //                op.ProductId = product.ProductId; op.ProductCode = product.ProductCode;
         //                op.ProductDescription = product.ProductDescription;
         //                op.UoM = vm.UoM; op.UnitPrice = vm.UnitPrice;
         //                op.Quantity = vm.Quantity; op.IsActive = true;
         //                op.TotalAmount = Math.Round((decimal)(vm.UnitPrice * op.Quantity), 2);
-        //                List<OrderedProduct> orderlist = new List<OrderedProduct>();
+        //                List<OrderedProduct> orderlist = new List<OrderTab>();
         //                if (HttpContext.Session.GetString("POI") == null) orderlist.Add(op);
         //                else
         //                {
-        //                    orderlist = JsonConvert.DeserializeObject<List<OrderedProduct>>(HttpContext.Session.GetString("POI"));
+        //                    orderlist = JsonConvert.DeserializeObject<List<OrderTab>>(HttpContext.Session.GetString("POI"));
         //                    orderlist.Add(op);
         //                }
         //                var serializedRecords = JsonConvert.SerializeObject(orderlist);
@@ -156,9 +156,10 @@ namespace ASPNETCoreDbFirst.Controllers
         //    }
         //}
 
-        public JsonResult getunitprice(int ProductId)
+        [HttpGet]
+        public JsonResult GetUnitPrice(int productId)
         {
-            var details = (Context.Products.Where(option => option.ProductId == ProductId));
+            var details = (Context.Products.Where(option => option.ProductId == productId));
             return Json(details);
         }
 
