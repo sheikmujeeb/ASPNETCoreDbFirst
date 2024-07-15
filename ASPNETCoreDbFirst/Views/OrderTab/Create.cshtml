@@ -7,45 +7,46 @@
 <html lang="en">
 <head>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <script>
         $(document).ready(function () {
-            $('#Quantity, #UnitPrice').on('input', function () {
-                var quantity = parseFloat($('#Quantity').val()) || 0;
+            function calculateTotalAmount() {
+                var quantity = parseInt($('#Quantity').val()) || 0;
                 var unitprice = parseFloat($('#UnitPrice').val()) || 0;
                 var totalAmount = quantity * unitprice;
-                $('#TotalPrice').val(totalAmount);
-            });
-        });
-        $(document).ready(function () {
-            $('#SubTotal, #Discount, #ShippingFee').on('input', function () {
-                var subtotal = parseFloat($('#SubTotal').val()) || 0;
-                var discount = parseFloat($('#Discount').val()) || 0;
-                var shippingfee = parseFloat($('#ShippingFee').val()) || 0;
-                var totalAmount = subtotal - discount + shippingfee;
-                $('#NetTotal').val(totalAmount);
-            });
-              $('#ProductId').change(function () {
-                GetUnitPrice()
-            });
-            var GetUnitPrice = function () {
-                var selectedValue = $("#ProductId").val();
-                $.ajax({
-                    url: '@Url.Action("GetUnitPrice", "OrderTab")',
-                    type: 'GET',
-                    data: {
-                        ProductId: selectedValue,
-                    },
-                    success: function (data) {
-                        alert("Successful");
-                        $('#UnitPrice').val(data[0].unitprice);
-
-                    }
-                });
+                $('#SubTotal').val(totalAmount.toFixed(2));
+                calculateNetAmount();
             }
 
+            function calculateNetAmount() {
+                var subtotal = parseFloat($('#SubTotal').val()) || 0;
+                var discount = parseFloat($('#Discount').val()) || 0;
+                var shippingFee = parseFloat($('#ShippingFee').val()) || 0;
+
+                var discountAmount = (discount / 100) * subtotal;
+                var netAmount = subtotal - discountAmount + shippingFee;
+
+                $('#NetTotal').val(netAmount.toFixed(2));
+            }
+
+            $('#Quantity, #UnitPrice').on('input', function () {
+                calculateTotalAmount();
+            });
+
+            $('#SubTotal, #Discount, #ShippingFee').on('input', function () {
+                calculateNetAmount();
+            });
+
+            // function setIndianDateTime() {
+            //     var now = new Date();
+            //     var ISTOffset = 5.5 * 60 * 60 * 1000;
+            //     var ISTTime = new Date(now.getTime() + ISTOffset);
+            //     var formattedDate = ISTTime.toISOString().slice(0, 19);
+            //     $('#OrderDate').val(formattedDate);
+            // }
+
+            // setIndianDateTime();
         });
-
-
     </script>
 
 
@@ -94,6 +95,7 @@
 
 </head>
 <body>
+    <form asp-action="Create" method="post">
     <h5><b>Purchase Order</b></h5>
     <br />
     <div class="container">
@@ -130,7 +132,7 @@
         </div>
         <div class="form-group">
             <label asp-for="UnitPrice" class="control-label"></label>
-            <input asp-for="UnitPrice" id="UnitPrice" class="form-control" readonly />
+            <input asp-for="UnitPrice" id="UnitPrice" class="form-control" />
             <span asp-validation-for="UnitPrice" class="text-danger"></span>
         </div>
         <div class="form-button">
@@ -144,9 +146,6 @@
 
         <thead>
             <tr>
-                <th>
-                    @Html.DisplayName("Edit")
-                </th>
                 <th>
                     @Html.DisplayNameFor(model => model.ProductId)
                 </th>
@@ -215,6 +214,6 @@
             <input type="submit" value="Save" class="btn btn-primary" />
         </div>
     </div>
-
+    </form>
 </body>
 </html>

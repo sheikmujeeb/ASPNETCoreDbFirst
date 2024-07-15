@@ -7,10 +7,14 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddDistributedMemoryCache();
+
 builder.Services.AddDbContext<R2hErpDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DBConnection"));
 });
+
+
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);

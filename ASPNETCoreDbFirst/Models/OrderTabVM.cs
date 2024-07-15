@@ -9,7 +9,8 @@ namespace ASPNETCoreDbFirst.Models
         [Key]
         public int OrderId { get; set; }
 
-        public string? OrderNumber { get; set; }
+        public string? OrderNumber { get; set; }  
+                                   
         [ForeignKey("CustomerVM")]
         public int CustomerId { get; set; }
         [ForeignKey("ProductVM")]
