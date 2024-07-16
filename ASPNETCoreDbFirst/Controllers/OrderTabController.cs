@@ -51,7 +51,7 @@ namespace ASPNETCoreDbFirst.Controllers
         // POST: OrderTabController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(OrderTabVM ordertabvm)
+        public JsonResult Create(OrderTabVM ordertabvm)
         {
             var order = new OrderTab
             {
@@ -66,29 +66,30 @@ namespace ASPNETCoreDbFirst.Controllers
             };
             HttpContext.Session.SetString("OrderTab", JsonConvert.SerializeObject(order));
 
-            return View();
+            return Json(ordertabvm);
         }
-        public IActionResult GetItems()
+        [HttpGet]
+        public JsonResult getItems()
         {
             var itemsJson = HttpContext.Session.GetString("order");
             if (itemsJson != null)
             {
-                var items = JsonConvert.DeserializeObject<OrderTab>(itemsJson);
+                var items = JsonConvert.DeserializeObject<OrderTabVM>(itemsJson);
                 return Json(items);
             }
-            return Json(new List<OrderTab>());
+            return Json(new List<OrderTabVM>());
         }
         [HttpPost]
-        public IActionResult AddItem([FromBody] OrderTab newItem)
+        public JsonResult AddItem( OrderTabVM newItem)
         {
             var itemsJson = HttpContext.Session.GetString("order");
-            var items = itemsJson != null ? JsonConvert.DeserializeObject<List<OrderTab>>(itemsJson) : new List<OrderTab>();
+            var items = itemsJson != null ? JsonConvert.DeserializeObject<List<OrderTabVM>>(itemsJson) : new List<OrderTabVM>();
 
             items.Add(newItem);
 
             HttpContext.Session.SetString("order", JsonConvert.SerializeObject(items));
 
-            return Json(newItem);
+            return Json(items);
         }
 
         //public async Task<IActionResult> AddProduct(OrderedProduct vm)

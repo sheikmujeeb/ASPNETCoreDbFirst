@@ -8,7 +8,7 @@
 <head>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function () {
+       $(document).ready(function () {
               function calculateTotalAmount() {
                 var quantity = parseInt($('#Quantity').val()) || 0;
                 var unitprice = parseFloat($('#UnitPrice').val()) || 0;
@@ -39,10 +39,33 @@
             $('#ProductId').change(function () {
                 calculateAmount();
             });
-            $('#Productid','#Quantity','#UnitPrice').on('input',function () {
-                addItems();
-            });
-            
+            // $('#Productid', '#Quantity', '#UnitPrice').on('input', function () {
+            //     getItems();
+            // });
+            // $('#getItems').click(function () {
+            //     var newItem = {
+            //         productId: $('#newProductId').val(),
+            //         quantity: $('#newQuantity').val(),
+            //         unitPrice: $('#newUnitPrice').val()
+            //     };
+
+            //     $.ajax({
+            //         url: '@Url.Action("AddItem", "OrderTab")',
+            //         type: 'POST',
+            //         contentType: 'application/json',
+            //         data: JSON.stringify(newItem),
+            //         success: function (data) {
+            //             getItems();
+            //             alert("AddItem running");
+            //             $('#newProductId').val('');
+            //             $('#newQuantity').val('');
+            //             $('#newUnitPrice').val('');
+            //         },
+            //         error: function (xhr, status, error) {
+            //             console.error('AJAX Error: ' + status + error);
+            //         }
+            //     });
+            // }
 
             function calculateAmount() {
                 var productId = $('#ProductId').val();
@@ -53,8 +76,8 @@
                     type: 'GET',
                     data: { productId: productId },
                     success: function (data) {
-                        var unitPrice = parseFloat(data);
                         alert("Success");
+                        var unitPrice = parseFloat(data);
                         $('#UnitPrice').val(unitPrice);
                     },
                     error: function () {
@@ -63,60 +86,39 @@
                     
                 });
             }
-            fetchItems();
-            function fetchItems() {
-                $.ajax({
-                    url: '@Url.Action("GetItems", "OrderTab")',
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function (data) {
-                        // Clear existing rows
-                        $('#orderedlist tbody').empty();
 
-                        // Iterate through the data and create table rows
-                        $.each(data, function (index, item) {
-                            var row = '<tr>' +
-                                '<td>' + item.productId + '</td>' +
-                                '<td>' + item.quantity + '</td>' +
-                                '<td>' + item.unitprice + '</td>' +
-                                '<td>' + item.totalAmount + '</td>' +
-                                '</tr>';
-                            $('#orderedlist tbody').append(row);
-                        });
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('AJAX Error: ' + status + error);
-                    }
-                });
-            }
-            // Function to add a new item
-            $('#addItemButton').click(function () {
-                var newItem = {
-                    ProductId: $('#newProductId').val(),
-                    Quantity: $('#newQuantity').val(),
-                    UnitPrice: $('#newUnitPrice').val()
-                };
+           // getItems()
+           // function getItems() {
+           //  $.ajax({
+           //      url: '@Url.Action("getItems", "OrderTab")',
+           //      type: 'GET',
+           //      dataType: 'json',
+           //      success: function (data) {
+           //          // Clear existing rows
+           //          $('#orderedlist tbody').empty();
 
-                $.ajax({
-                    url: '@Url.Action("AddItem", "OrderTab")',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(newItem),
-                    success: function (data) {
-                        fetchItems();
-                        $('#newProductId').val('');
-                        $('#newQuantity').val('');
-                        $('#newUnitPrice').val('');
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('AJAX Error: ' + status + error);
-                    }
-                });
-            });
+           //          alert("GetItems running");
 
-            // $('#ProductId').change(function () {
-            //     getProductByUnitPrice()
-            // });
+           //          // Iterate through the data and create table rows
+           //          $.each(data, function (index, item) {
+           //              var row = '<tr>' +
+           //                  '<td>' + item.productId + '</td>' +
+           //                  '<td>' + item.quantity + '</td>' +
+           //                  '<td>' + item.unitprice + '</td>' +
+           //                  '<td>' + item.totalAmount + '</td>' +
+           //                  '</tr>';
+           //              $('#orderedlist tbody').append(row);
+           //          });
+           //      },
+           //      error: function (xhr, status, error) {
+           //          console.error('AJAX Error: ' + status + error);
+           //      }
+           //  }
+
+
+
+
+            // function calculateAmount() {
             // var getProductByUnitPrice = function () {
             //     var selectedValue = $("#ProductId").val();
             //     $.ajax({
@@ -135,7 +137,7 @@
 
 
 
-        });
+      });
 
 
     </script>
@@ -237,8 +239,9 @@
                 <input asp-for="UnitPrice" id="UnitPrice" class="form-control"  />
                 <span asp-validation-for="UnitPrice" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="button" id="addItemButton" value="Add Item" class="btn btn-primary h-60"<i class="fa-solid fa-plus"></i>
+            <div class="form-group"><br />
+                <input type="buttom" id="getItems" class="btn btn-primary h-60"><i class="fa-solid fa-plus"></i>Add Item
+                </a>
             </div>
         </div>
         <br />
@@ -261,7 +264,7 @@
                     </th>
                 </tr>
             </thead>
-             <tbody>
+             <tbody id="productbody">
                 @* @foreach (var item in ViewBag.OrderTabVM)
                 {
                     <tr>
