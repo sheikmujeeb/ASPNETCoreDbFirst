@@ -67,6 +67,7 @@ namespace ASPNETCoreDbFirst.Controllers
             {
                 productvm.Name = show.Name;
                 productvm.Code = show.Code;
+                productvm.UnitPrice = show.UnitPrice;
                 productvm.IsActive = show.IsActive;
                 return View(productvm);
             }
@@ -89,6 +90,7 @@ namespace ASPNETCoreDbFirst.Controllers
                 existingProduct.Name = productvm.Name;
                 existingProduct.Code= productvm.Code;
                 existingProduct.IsActive = productvm.IsActive;
+                existingProduct.UnitPrice = productvm.UnitPrice;
                 existingProduct.UpdatedOn = DateTime.Now;
                 Context.Update(existingProduct);
                 await Context.SaveChangesAsync();
