@@ -37,12 +37,15 @@
             });
 
             $('#ProductId').change(function () {
-                calculateAmount();
+                GetProductByUnitPrice()
             });
+
+
+        });
             // $('#Productid', '#Quantity', '#UnitPrice').on('input', function () {
-            //     getItems();
+            //     GetItems();
             // });
-            // $('#getItems').click(function () {
+            // $('#GetItems').click(function () {
             //     var newItem = {
             //         productId: $('#newProductId').val(),
             //         quantity: $('#newQuantity').val(),
@@ -50,7 +53,7 @@
             //     };
 
             //     $.ajax({
-            //         url: '@Url.Action("AddItem", "OrderTab")',
+            //         url: '@Url.Action("GetItem", "OrderTab")',
             //         type: 'POST',
             //         contentType: 'application/json',
             //         data: JSON.stringify(newItem),
@@ -67,79 +70,59 @@
             //     });
             // }
 
-            function calculateAmount() {
-                var productId = $('#ProductId').val();
-
-                // Make an AJAX call to fetch the unit price based on productId
-                $.ajax({
-                    url: '/OrderTab/getProductByUnitPrice',
-                    type: 'GET',
-                    data: { productId: productId },
-                    success: function (data) {
-                        alert("Success");
-                        var unitPrice = parseFloat(data);
-                        $('#UnitPrice').val(unitPrice);
-                    },
-                    error: function () {
-                        alert('Error fetching unit price.');
-                    }
+        
+            function GetProductByUnitPrice () {
+               var selectedValue = $("#ProductId").val();
+               $.ajax({
+                url: '@Url.Action("GetProductByUnitPrice", "OrderTab")',
+                type: 'GET',
+                data: {
+                    ProductId: selectedValue,
+                   },
+                success: function (data) {
                     
+                    $('#UnitPrice').val(data[0].unitPrice)
+
+                  }
+               });
+             }
+
+           $.ajax({
+            data:
+            {
+                ProductId: id,
+                UnitPrice: uprice,
+                Quantity: qty,
+            },
+            method: "POST",
+            //contentType: "application/json",
+            url: "@Url.Action("AddItem", "OrderTab")",
+            success: function (response) {
+                $("#productbody").empty();
+                $("#ProductId").val('0');
+                $("#Quantity").val('0');
+                $("#UnitPrice").val('0');
+                $("#TotalAmount").val('0');
+                $("#SubTotal").val('0');
+                var subtotal = 0;
+                $.each(response, function (index, item) {
+                    result = "<tr><td><button type='button' class='btn btn-default btn-xs' onclick='AddProduct(&quot;" + itm.productId + "&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;2&quot;);' title='Delete'><i class='bx bx-trash'></i></button></td>" +
+                        "<td>" + item.productId + "</td>" +
+                        "<td>" + item.quantity + "</td>" +
+                        "<td class='text-end'>" + item.unitPrice.toFixed(2) + "</td>" +
+                        "<td class='text-end'>" + item.totalAmount.toFixed(2) + "</td></tr>";
+                    $("#productbody").append(result);
+                    subtotal = subtotal + itm.totalAmount;
                 });
+                $("#SubTotal").val(subtotal);
+            },
+            failure: function (response) {
+                alert(response.Error);
+            },
+            error: function (response) {
+                alert(response.Error);
             }
-
-           // getItems()
-           // function getItems() {
-           //  $.ajax({
-           //      url: '@Url.Action("getItems", "OrderTab")',
-           //      type: 'GET',
-           //      dataType: 'json',
-           //      success: function (data) {
-           //          // Clear existing rows
-           //          $('#orderedlist tbody').empty();
-
-           //          alert("GetItems running");
-
-           //          // Iterate through the data and create table rows
-           //          $.each(data, function (index, item) {
-           //              var row = '<tr>' +
-           //                  '<td>' + item.productId + '</td>' +
-           //                  '<td>' + item.quantity + '</td>' +
-           //                  '<td>' + item.unitprice + '</td>' +
-           //                  '<td>' + item.totalAmount + '</td>' +
-           //                  '</tr>';
-           //              $('#orderedlist tbody').append(row);
-           //          });
-           //      },
-           //      error: function (xhr, status, error) {
-           //          console.error('AJAX Error: ' + status + error);
-           //      }
-           //  }
-
-
-
-
-            // function calculateAmount() {
-            // var getProductByUnitPrice = function () {
-            //     var selectedValue = $("#ProductId").val();
-            //     $.ajax({
-            //         url: '@Url.Action("getProductByUnitPrice", "OrderTab")',
-            //         type: 'GET',
-            //         data: {
-            //             ProductId: selectedValue,
-            //         },
-            //         success: function (data) {
-
-            //             $('#UnitPrice').val(data[0].unitprice)
-
-            //         }
-            //     });
-            // }
-
-
-
-      });
-
-
+        });
     </script>
 
     <meta charset="UTF-8">
@@ -236,20 +219,22 @@
             </div>
             <div class="form-group">
                 <label asp-for="UnitPrice" class="control-label"></label>
-                <input asp-for="UnitPrice" id="UnitPrice" class="form-control"  />
+                <input asp-for="UnitPrice" id="UnitPrice" class="form-control" readonly  />
                 <span asp-validation-for="UnitPrice" class="text-danger"></span>
             </div>
             <div class="form-group"><br />
-                <input type="buttom" id="getItems" class="btn btn-primary h-60"><i class="fa-solid fa-plus"></i>Add Item
-                </a>
+                <input type="button" value="Add Item" onclick="AddItem" class="btn btn-primary h-60" /><i class="fa-solid fa-plus"></i>           
             </div>
         </div>
         <br />
         <br />
-        <table class="table" id="orderedlist">
+        <table class="table" id="productlist">
 
             <thead>
                 <tr>
+                    <th>
+
+                    </th>
                     <th>
                         ProductId
                     </th>
@@ -265,30 +250,7 @@
                 </tr>
             </thead>
              <tbody id="productbody">
-                @* @foreach (var item in ViewBag.OrderTabVM)
-                {
-                    <tr>
-                        <td>
-                            <a asp-controller="OrderTab" asp-action="Update" asp-route-id="@item.Id" method="get" class="btn btn-outline-primary">
-                                <i class="fa fa-folder" aria-hidden="true"></i>
-
-                            </a>
-                        </td>
-                        <td>
-                            item.Product.Id
-                        </td>
-                        <td>
-                            item.Quantity
-                        </td>
-                        <td>
-                            item.UnitPrice
-                        </td>
-                        <td>
-                            item.SubTotal
-                        </td>
-                        <td>
-                    </tr>
-                } *@
+               
             </tbody>
 
 

@@ -69,7 +69,7 @@ namespace ASPNETCoreDbFirst.Controllers
             return Json(ordertabvm);
         }
         [HttpGet]
-        public JsonResult getItems()
+        public JsonResult GetItems()
         {
             var itemsJson = HttpContext.Session.GetString("order");
             if (itemsJson != null)
@@ -179,7 +179,7 @@ namespace ASPNETCoreDbFirst.Controllers
         //    }
         //}
 
-        public JsonResult getProductByUnitPrice(int productId)
+        public JsonResult GetProductByUnitPrice(int productId)
         {
             var result = (Context.Products.Where(option => option.ProductId == productId));
             return Json(result);
