@@ -8,8 +8,8 @@
 <head>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-       $(document).ready(function () {
-              function calculateTotalAmount() {
+        $(document).ready(function () {
+            function calculateTotalAmount() {
                 var quantity = parseInt($('#Quantity').val()) || 0;
                 var unitprice = parseFloat($('#UnitPrice').val()) || 0;
                 var totalAmount = quantity * unitprice;
@@ -39,89 +39,61 @@
             $('#ProductId').change(function () {
                 GetProductByUnitPrice()
             });
-
-
-        });
-            // $('#Productid', '#Quantity', '#UnitPrice').on('input', function () {
-            //     GetItems();
-            // });
-            // $('#GetItems').click(function () {
-            //     var newItem = {
-            //         productId: $('#newProductId').val(),
-            //         quantity: $('#newQuantity').val(),
-            //         unitPrice: $('#newUnitPrice').val()
-            //     };
-
-            //     $.ajax({
-            //         url: '@Url.Action("GetItem", "OrderTab")',
-            //         type: 'POST',
-            //         contentType: 'application/json',
-            //         data: JSON.stringify(newItem),
-            //         success: function (data) {
-            //             getItems();
-            //             alert("AddItem running");
-            //             $('#newProductId').val('');
-            //             $('#newQuantity').val('');
-            //             $('#newUnitPrice').val('');
-            //         },
-            //         error: function (xhr, status, error) {
-            //             console.error('AJAX Error: ' + status + error);
-            //         }
-            //     });
-            // }
-
-        
-            function GetProductByUnitPrice () {
-               var selectedValue = $("#ProductId").val();
-               $.ajax({
-                url: '@Url.Action("GetProductByUnitPrice", "OrderTab")',
-                type: 'GET',
-                data: {
-                    ProductId: selectedValue,
-                   },
-                success: function (data) {
-                    
-                    $('#UnitPrice').val(data[0].unitPrice)
-
-                  }
-               });
-             }
-
-           $.ajax({
-            data:
-            {
-                ProductId: id,
-                UnitPrice: uprice,
-                Quantity: qty,
-            },
-            method: "POST",
-            //contentType: "application/json",
-            url: "@Url.Action("AddItem", "OrderTab")",
-            success: function (response) {
-                $("#productbody").empty();
-                $("#ProductId").val('0');
-                $("#Quantity").val('0');
-                $("#UnitPrice").val('0');
-                $("#TotalAmount").val('0');
-                $("#SubTotal").val('0');
-                var subtotal = 0;
-                $.each(response, function (index, item) {
-                    result = "<tr><td><button type='button' class='btn btn-default btn-xs' onclick='AddProduct(&quot;" + itm.productId + "&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;2&quot;);' title='Delete'><i class='bx bx-trash'></i></button></td>" +
-                        "<td>" + item.productId + "</td>" +
-                        "<td>" + item.quantity + "</td>" +
-                        "<td class='text-end'>" + item.unitPrice.toFixed(2) + "</td>" +
-                        "<td class='text-end'>" + item.totalAmount.toFixed(2) + "</td></tr>";
-                    $("#productbody").append(result);
-                    subtotal = subtotal + itm.totalAmount;
+            $('#addProduct').click(function () {
+                var result = "";
+                $.ajax({
+                    data:
+                    {
+                        productId: $('#ProductId').val(),
+                        quantity: $('#Quantity').val(),
+                        unitPrice: $('#UnitPrice').val()
+                    },
+                    method: "POST",
+                    //contentType: "application/json",
+                    url: "@Url.Action("AddItem", "OrderTab")",
+                    success: function (response) {
+                        $("#productbody").empty();
+                        $("#TotalAmount").val('0');
+                        $("#SubTotal").val('0');
+                        var subtotal = 0;
+                        $.each(response, function (index, item) {
+                            result = "<tr><td><button type='button' class='btn btn-default btn-xs' onclick='AddProduct(&quot;" + item.productId + "&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;2&quot;);' title='Delete'><i class='bx bx-trash'></i></button></td>" +
+                                "<td>" + item.productId + "</td>" +
+                                "<td>" + item.quantity + "</td>" +
+                                "<td>" + item.unitPrice.toFixed(2) + "</td>" +
+                                "<td>" + item.totalAmount.toFixed(2) + "</td></tr>";
+                            $("#productbody").append(result);
+                            subtotal = subtotal + item.totalAmount;
+                        });
+                        $("#SubTotal").val(subtotal);
+                    },
+                    failure: function (response) {
+                        alert(response.Error);
+                    },
+                    error: function (response) {
+                        alert(response.Error);
+                    }
                 });
-                $("#SubTotal").val(subtotal);
-            },
-            failure: function (response) {
-                alert(response.Error);
-            },
-            error: function (response) {
-                alert(response.Error);
+            });
+
+
+
+            function GetProductByUnitPrice() {
+                var selectedValue = $("#ProductId").val();
+                $.ajax({
+                    url: '@Url.Action("GetProductByUnitPrice", "OrderTab")',
+                    type: 'GET',
+                    data: {
+                        ProductId: selectedValue,
+                    },
+                    success: function (data) {
+
+                        $('#UnitPrice').val(data[0].unitPrice)
+
+                    }
+                });
             }
+
         });
     </script>
 
@@ -139,12 +111,12 @@
         }
 
 
-        .container{
+        .container {
             display: flex;
             justify-content: space-evenly;
         }
 
-        .package{
+        .package {
             display: flex;
             justify-content: space-evenly;
         }
@@ -219,11 +191,12 @@
             </div>
             <div class="form-group">
                 <label asp-for="UnitPrice" class="control-label"></label>
-                <input asp-for="UnitPrice" id="UnitPrice" class="form-control" readonly  />
+                <input asp-for="UnitPrice" id="UnitPrice" class="form-control" readonly />
                 <span asp-validation-for="UnitPrice" class="text-danger"></span>
             </div>
-            <div class="form-group"><br />
-                <input type="button" value="Add Item" onclick="AddItem" class="btn btn-primary h-60" /><i class="fa-solid fa-plus"></i>           
+            <div class="form-group">
+                <br />
+                <button id="addProduct" class="btn btn-primary h-60"><i class="fa-solid fa-plus"></i>Add Item</button>
             </div>
         </div>
         <br />
@@ -245,12 +218,11 @@
                         UnitPrice
                     </th>
                     <th>
-                       TotalAmount
+                        TotalAmount
                     </th>
                 </tr>
             </thead>
-             <tbody id="productbody">
-               
+            <tbody id="productbody">
             </tbody>
 
 
