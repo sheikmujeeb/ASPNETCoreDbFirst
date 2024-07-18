@@ -51,13 +51,13 @@ namespace ASPNETCoreDbFirst.Controllers
         // POST: OrderTabController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public JsonResult Create(OrderTabVM ordertabvm)
+        public ActionResult Create(OrderTabVM ordertabvm)
         {
             var order = new OrderTab
             {
                 OrderNumber = ordertabvm.OrderNumber,
                 CustomerId = ordertabvm.CustomerId,
-                OrderDate = ordertabvm.OrderDate,
+                OrderDate = DateTime.Now,
                 SubTotal = ordertabvm.SubTotal,
                 Discount = ordertabvm.Discount,
                 ShippingFee = ordertabvm.ShippingFee,
@@ -66,7 +66,7 @@ namespace ASPNETCoreDbFirst.Controllers
             };
             HttpContext.Session.SetString("OrderTab", JsonConvert.SerializeObject(order));
 
-            return Json(ordertabvm);
+            return View(ordertabvm);
         }
         [HttpGet]
         public JsonResult GetItems()
@@ -82,15 +82,33 @@ namespace ASPNETCoreDbFirst.Controllers
         [HttpPost]
         public JsonResult AddItem( OrderTabVM newItem)
         {
+          
+            
+            var itemsJson = HttpContext.Session.GetString("order");
+            var items = itemsJson != null ? JsonConvert.DeserializeObject<List<OrderTabVM>>(itemsJson) : new List<OrderTabVM>();
+             
+                items.Add(newItem);
+
+                HttpContext.Session.SetString("order", JsonConvert.SerializeObject(items));
+
+                return Json(items);
+
+        }
+        [HttpDelete]
+        public JsonResult Remove(OrderTabVM id)
+        {
             var itemsJson = HttpContext.Session.GetString("order");
             var items = itemsJson != null ? JsonConvert.DeserializeObject<List<OrderTabVM>>(itemsJson) : new List<OrderTabVM>();
 
-            items.Add(newItem);
+            items.Remove(id);
 
             HttpContext.Session.SetString("order", JsonConvert.SerializeObject(items));
 
             return Json(items);
         }
+
+
+
 
         //public async Task<IActionResult> AddProduct(OrderedProduct vm)
         //{

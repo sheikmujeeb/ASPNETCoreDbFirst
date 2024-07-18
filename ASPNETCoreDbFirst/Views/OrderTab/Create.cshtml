@@ -9,13 +9,6 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function () {
-            function calculateTotalAmount() {
-                var quantity = parseInt($('#Quantity').val()) || 0;
-                var unitprice = parseFloat($('#UnitPrice').val()) || 0;
-                var totalAmount = quantity * unitprice;
-                $('#SubTotal').val(totalAmount.toFixed(2));
-                calculateNetAmount();
-            }
 
             function calculateNetAmount() {
                 var subtotal = parseFloat($('#SubTotal').val()) || 0;
@@ -28,10 +21,6 @@
                 $('#NetTotal').val(netAmount.toFixed(2));
             }
 
-            $('#Quantity, #UnitPrice').on('input', function () {
-                calculateTotalAmount();
-            });
-
             $('#SubTotal, #Discount, #ShippingFee').on('input', function () {
                 calculateNetAmount();
             });
@@ -39,39 +28,67 @@
             $('#ProductId').change(function () {
                 GetProductByUnitPrice()
             });
+
+
             $('#addProduct').click(function () {
-                var result = "";
+                var newItem = {
+                    ProductId: $('#ProductId').val(),
+                    ProductName: $('#ProductId option:selected').text(),
+                    Quantity: $('#Quantity').val(),
+                    UnitPrice: $('#UnitPrice').val(),
+                    TotalAmount: (parseInt($('#Quantity').val()) || 0) * (parseFloat($('#UnitPrice').val()) || 0)
+                };
                 $.ajax({
-                    data:
-                    {
-                        productId: $('#ProductId').val(),
-                        quantity: $('#Quantity').val(),
-                        unitPrice: $('#UnitPrice').val()
-                    },
+                    data:newItem,
                     method: "POST",
                     //contentType: "application/json",
                     url: "@Url.Action("AddItem", "OrderTab")",
                     success: function (response) {
-                        $("#productbody").empty();
-                        $("#TotalAmount").val('0');
+                        $("#productbody").empty();          
                         $("#SubTotal").val('0');
                         var subtotal = 0;
+
                         $.each(response, function (index, item) {
-                            result = "<tr><td><button type='button' class='btn btn-default btn-xs' onclick='AddProduct(&quot;" + item.productId + "&quot;,&quot;0&quot;,&quot;0&quot;,&quot;0&quot;,&quot;2&quot;);' title='Delete'><i class='bx bx-trash'></i></button></td>" +
-                                "<td>" + item.productId + "</td>" +
+
+                            var result = "<tr><td><input type='button' id='removeproduct' value='Delete' class='btn btn-outline-primary'/></td>" +
+                                "<td>" + item.productName + "</td>" +
                                 "<td>" + item.quantity + "</td>" +
                                 "<td>" + item.unitPrice.toFixed(2) + "</td>" +
                                 "<td>" + item.totalAmount.toFixed(2) + "</td></tr>";
                             $("#productbody").append(result);
                             subtotal = subtotal + item.totalAmount;
+                            
                         });
                         $("#SubTotal").val(subtotal);
+                        $('#ProductId').val('');
+                        $('#Quantity').val('');
+                        $('#UnitPrice').val('');
+                        calculateNetAmount();
                     },
                     failure: function (response) {
                         alert(response.Error);
                     },
                     error: function (response) {
                         alert(response.Error);
+                    }
+                });
+            });
+
+            $('#removeproduct').click(function () {
+                ProductId: $('#ProductId').val(),
+
+                $.ajax({
+                    url: '/OrderTab/Remove',
+                    type: 'POST',
+                    data: { productId: ProductId },
+                    success: function (response) {
+                        // Handle success
+                        alert('Record deleted successfully!');
+                        // Optionally, remove the deleted record from the DOM
+                    },
+                    error: function (xhr, status, error) {
+                        // Handle error
+                        console.error('Error deleting record:', error);
                     }
                 });
             });
@@ -88,7 +105,7 @@
                     },
                     success: function (data) {
 
-                        $('#UnitPrice').val(data[0].unitPrice)
+                        $('#UnitPrice').val(data[0].unitPrice);
 
                     }
                 });
@@ -178,7 +195,7 @@
         <h5><b>Order Items</b></h5>
         <br />
 
-        <div class="package">
+        <div class="package" id="option">
             <div class="form-group">
                 <label class="control-label">Products</label><span class="mandatory"></span>
                 @Html.DropDownList("ProductId", (IEnumerable<SelectListItem>)ViewBag.ProductId, "--Select--", new { @id = "ProductId", @class = "form-select", required = "required" })
@@ -209,7 +226,7 @@
 
                     </th>
                     <th>
-                        ProductId
+                        Name
                     </th>
                     <th>
                         Quantity
@@ -220,6 +237,7 @@
                     <th>
                         TotalAmount
                     </th>
+                    
                 </tr>
             </thead>
             <tbody id="productbody">

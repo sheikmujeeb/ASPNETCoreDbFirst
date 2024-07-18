@@ -7,10 +7,11 @@ namespace ASPNETCoreDbFirst.Models
     {
         [Key]
         public int OrderId { get; set; }
+        [Required]
         public string? OrderNumber { get; set; }
         [ForeignKey("Customer")]
         public int CustomerId { get; set; }
-
+        [Required]
         public DateTime OrderDate { get; set; }
 
         public decimal? SubTotal { get; set; }
@@ -21,11 +22,12 @@ namespace ASPNETCoreDbFirst.Models
 
         public decimal? NetTotal { get; set; }
 
-
+        public string ProductName { get; set; }
         [ForeignKey("StatusTab")]
         public int StatusId { get; set; }
         public int OrderItemId { get; set; }
-       
+ 
+
         [ForeignKey("Product")]
         public int ProductId { get; set; }
 
