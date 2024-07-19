@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace ASPNETCoreDbFirst.DbModels;
 
 public partial class OrderTab
 {
+    [Key]
     public int OrderId { get; set; }
 
     public string? OrderNumber { get; set; }

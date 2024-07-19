@@ -18,12 +18,10 @@ namespace ASPNETCoreDbFirst.Controllers
     public class OrderTabController : Controller
     {
         private readonly R2hErpDbContext Context;
-        //private readonly IHttpContextAccessor Sessioncontext;
 
-        public OrderTabController(R2hErpDbContext context, IHttpContextAccessor content)
+        public OrderTabController(R2hErpDbContext context)
         {
             Context = context;
-            //Sessioncontext = content;
         }
         // GET: OrderTabController
         public IActionResult List()
@@ -99,7 +97,42 @@ namespace ASPNETCoreDbFirst.Controllers
             return Json(items);
 
         }
+        [HttpGet]
+        public ActionResult Edit(int id)
+        {
+            var find= Context.OrderTabs.Find(id);
 
+
+            HttpContext.Session.SetString("OrderTab", JsonConvert.SerializeObject(find));
+
+            return View("Create",find);
+
+        }
+        [HttpPost]
+        public async Task<IActionResult> Edit(OrderTabVM Change,int id)
+        {
+            var record = HttpContext.Session.GetString("find");
+            if (record != null)
+            {
+                var items = JsonConvert.DeserializeObject<OrderTabVM>(record);
+
+                
+                items.ProductId = Change.ProductId;
+                items.Quantity= Change.Quantity;
+                items.UnitPrice = Change.UnitPrice;
+                items.TotalAmount = Change.TotalAmount;
+                items.SubTotal= Change.SubTotal;
+                items.Discount= Change.Discount;
+                items.ShippingFee= Change.ShippingFee;
+                items.StatusId= Change.StatusId;
+                Context.Add(items);
+                Context.SaveChanges();
+
+            };
+
+            return RedirectToAction(nameof(List));
+
+        }
         //[HttpDelete]
         //public JsonResult Remove(int id)
         //{
@@ -217,26 +250,8 @@ namespace ASPNETCoreDbFirst.Controllers
         {
             return PartialView("Popupwindow", ordertab);
         }
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        // POST: OrderTabController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
+        
+        
         // GET: OrderTabController/Delete/5
         public ActionResult Delete(int id)
         {
