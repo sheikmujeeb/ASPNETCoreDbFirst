@@ -65,7 +65,7 @@ namespace ASPNETCoreDbFirst.Controllers
                 order.TotalAmount = order.Quantity * order.Amount;
                 Context.Add(order);
 
-                 Context.SaveChangesAsync();
+                Context.SaveChangesAsync();
                 return RedirectToAction(nameof(List));
             }
             

@@ -1,0 +1,95 @@
+﻿@model IEnumerable<ASPNETCoreDbFirst.DbModels.OrderTab>
+
+@{
+    ViewData["Title"] = "List";
+}
+<Style>
+    .Start{
+        display:flex;
+        justify-content:space-between;
+    }
+
+    #popupContainer {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 80%;
+        height: 80%;
+        background-color: white;
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        z-index: 1000;
+    }
+    #popupContainer iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+</Style>
+
+<div class="Start">
+<h1>Order List</h1>
+<br /><br />
+    <a asp-controller="OrderTab" asp-action="Create" class="btn btn-primary h-50"><i class="fa-solid fa-plus"></i> Create Order</a>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayName("Customer Name")
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.OrderNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.OrderDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NetTotal)
+            </th>
+            <th>
+                @Html.DisplayName("Status")
+            </th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Customer.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.OrderNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.OrderDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NetTotal)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status.StatusName) 
+                </td>
+                <td>
+                   @* <a asp-action="Edit" asp-route-id="@item.OrderId">Edit</a> | *@
+                    <button id="popup">Details</button>
+                  @*  <a asp-action="Delete" asp-route-id="@item.OrderId">Delete</a> *@
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<div id="popupContainer" style="display:none;">
+    <iframe id="popupIframe" style="width:100%; height:500px; border:none;"></iframe>
+</div>
+<script>
+    document.getElementById("popup").addEventListener("click", function () {
+        var iframe = document.getElementById("popupIframe");
+        iframe.src = '@Url.Action("PopupContent", "OrderTab")';
+        document.getElementById("popupContainer").style.display = "block";
+    });
+</script>

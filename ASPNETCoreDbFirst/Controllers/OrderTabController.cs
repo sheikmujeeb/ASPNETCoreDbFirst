@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Session;
+using NuGet.Versioning;
 
 
 
@@ -17,17 +18,18 @@ namespace ASPNETCoreDbFirst.Controllers
     public class OrderTabController : Controller
     {
         private readonly R2hErpDbContext Context;
-        private readonly IHttpContextAccessor Sessioncontext;
+        //private readonly IHttpContextAccessor Sessioncontext;
 
         public OrderTabController(R2hErpDbContext context, IHttpContextAccessor content)
         {
             Context = context;
-            Sessioncontext = content;
+            //Sessioncontext = content;
         }
         // GET: OrderTabController
         public IActionResult List()
         {
-            return View();
+            var show = Context.OrderTabs.Include(o => o.Customer).Include(p => p.Status).ToList();
+            return View("List", show);
         }
 
         // GET: OrderTabController/Details/5
@@ -51,22 +53,25 @@ namespace ASPNETCoreDbFirst.Controllers
         // POST: OrderTabController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(OrderTabVM ordertabvm)
+        public IActionResult Create(OrderTabVM ordertabvm)
         {
-            var order = new OrderTab
+            var order = new OrderTab();
             {
-                OrderNumber = ordertabvm.OrderNumber,
-                CustomerId = ordertabvm.CustomerId,
-                OrderDate = DateTime.Now,
-                SubTotal = ordertabvm.SubTotal,
-                Discount = ordertabvm.Discount,
-                ShippingFee = ordertabvm.ShippingFee,
-                NetTotal = ordertabvm.NetTotal,
-                StatusId = ordertabvm.StatusId
+                order.OrderNumber = ordertabvm.OrderNumber;
+                order.CustomerId = ordertabvm.CustomerId;
+                order.OrderDate = DateTime.Now;
+                order.SubTotal = ordertabvm.SubTotal;
+                order.Discount = ordertabvm.Discount;
+                order.ShippingFee = ordertabvm.ShippingFee;
+                order.NetTotal = ordertabvm.NetTotal;
+                order.StatusId = ordertabvm.StatusId;
+                Context.Add(order);
+                Context.SaveChanges();
+
             };
             HttpContext.Session.SetString("OrderTab", JsonConvert.SerializeObject(order));
 
-            return View(ordertabvm);
+            return RedirectToAction(nameof(List));
         }
         [HttpGet]
         public JsonResult GetItems()
@@ -80,33 +85,40 @@ namespace ASPNETCoreDbFirst.Controllers
             return Json(new List<OrderTabVM>());
         }
         [HttpPost]
-        public JsonResult AddItem( OrderTabVM newItem)
+        public JsonResult AddItem(OrderTabVM newItem)
         {
-          
-            
-            var itemsJson = HttpContext.Session.GetString("order");
-            var items = itemsJson != null ? JsonConvert.DeserializeObject<List<OrderTabVM>>(itemsJson) : new List<OrderTabVM>();
-             
-                items.Add(newItem);
 
-                HttpContext.Session.SetString("order", JsonConvert.SerializeObject(items));
 
-                return Json(items);
-
-        }
-        [HttpDelete]
-        public JsonResult Remove(OrderTabVM id)
-        {
             var itemsJson = HttpContext.Session.GetString("order");
             var items = itemsJson != null ? JsonConvert.DeserializeObject<List<OrderTabVM>>(itemsJson) : new List<OrderTabVM>();
 
-            items.Remove(id);
+            items.Add(newItem);
 
             HttpContext.Session.SetString("order", JsonConvert.SerializeObject(items));
 
             return Json(items);
+
         }
 
+        //[HttpDelete]
+        //public JsonResult Remove(int id)
+        //{
+        //    var itemsJson = HttpContext.Session.GetString("order");
+        //    var items = itemsJson != null ? JsonConvert.DeserializeObject<List<OrderTabVM>>(itemsJson) : new List<OrderTabVM>();
+
+
+        //    items.Remove(id);
+
+        //    HttpContext.Session.SetString("order", JsonConvert.SerializeObject(items));
+
+        //    return Json(items);
+        //}
+
+        public JsonResult GetProductByUnitPrice(int productId)
+        {
+            var result = (Context.Products.Where(option => option.ProductId == productId));
+            return Json(result);
+        }
 
 
 
@@ -197,14 +209,14 @@ namespace ASPNETCoreDbFirst.Controllers
         //    }
         //}
 
-        public JsonResult GetProductByUnitPrice(int productId)
-        {
-            var result = (Context.Products.Where(option => option.ProductId == productId));
-            return Json(result);
-        }
 
 
         // GET: OrderTabController/Edit/5
+
+        public ActionResult PopupContent(OrderTab ordertab)
+        {
+            return PartialView("Popupwindow", ordertab);
+        }
         public ActionResult Edit(int id)
         {
             return View();

@@ -7,9 +7,9 @@ public partial class Product
 {
     public int ProductId { get; set; }
 
-    public string Name { get; set; } 
+    public string Name { get; set; } = null!;
 
-    public string Code { get; set; } 
+    public string Code { get; set; } = null!;
 
     public DateTime CreatedOn { get; set; }
 

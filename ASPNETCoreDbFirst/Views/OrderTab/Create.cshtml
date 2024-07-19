@@ -39,12 +39,12 @@
                     TotalAmount: (parseInt($('#Quantity').val()) || 0) * (parseFloat($('#UnitPrice').val()) || 0)
                 };
                 $.ajax({
-                    data:newItem,
+                    data: newItem,
                     method: "POST",
                     //contentType: "application/json",
                     url: "@Url.Action("AddItem", "OrderTab")",
                     success: function (response) {
-                        $("#productbody").empty();          
+                        $("#productbody").empty();
                         $("#SubTotal").val('0');
                         var subtotal = 0;
 
@@ -57,7 +57,7 @@
                                 "<td>" + item.totalAmount.toFixed(2) + "</td></tr>";
                             $("#productbody").append(result);
                             subtotal = subtotal + item.totalAmount;
-                            
+
                         });
                         $("#SubTotal").val(subtotal);
                         $('#ProductId').val('');
@@ -77,20 +77,20 @@
             $('#removeproduct').click(function () {
                 ProductId: $('#ProductId').val(),
 
-                $.ajax({
-                    url: '/OrderTab/Remove',
-                    type: 'POST',
-                    data: { productId: ProductId },
-                    success: function (response) {
-                        // Handle success
-                        alert('Record deleted successfully!');
-                        // Optionally, remove the deleted record from the DOM
-                    },
-                    error: function (xhr, status, error) {
-                        // Handle error
-                        console.error('Error deleting record:', error);
-                    }
-                });
+                    $.ajax({
+                        url: '/OrderTab/Remove',
+                        type: 'POST',
+                        data: { productId: ProductId },
+                        success: function (response) {
+                            // Handle success
+                            alert('Record deleted successfully!');
+                            // Optionally, remove the deleted record from the DOM
+                        },
+                        error: function (xhr, status, error) {
+                            // Handle error
+                            console.error('Error deleting record:', error);
+                        }
+                    });
             });
 
 
@@ -133,6 +133,11 @@
             justify-content: space-evenly;
         }
 
+        .heading {
+            display: flex;
+            justify-content: space-between;
+        }
+
         .package {
             display: flex;
             justify-content: space-evenly;
@@ -171,7 +176,10 @@
 </head>
 <body>
     <form asp-action="Create" method="post">
-        <h5><b>Purchase Order</b></h5>
+        <div class="heading">
+            <h5><b>Purchase Order</b></h5>
+            <a asp-controller="OrderTab" asp-action="List" class="btn btn-primary h-50"><i class="fa fa-address-card" aria-hidden="true"></i></a>
+        </div>
         <br />
         <div class="container">
 
@@ -237,7 +245,7 @@
                     <th>
                         TotalAmount
                     </th>
-                    
+
                 </tr>
             </thead>
             <tbody id="productbody">

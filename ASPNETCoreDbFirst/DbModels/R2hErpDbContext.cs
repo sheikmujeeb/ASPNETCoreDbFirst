@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using ASPNETCoreDbFirst.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace ASPNETCoreDbFirst.DbModels;
@@ -27,6 +26,7 @@ public partial class R2hErpDbContext : DbContext
     public virtual DbSet<Product> Products { get; set; }
 
     public virtual DbSet<StatusTab> StatusTabs { get; set; }
+
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -130,8 +130,4 @@ public partial class R2hErpDbContext : DbContext
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
-
-public DbSet<ASPNETCoreDbFirst.Models.OrderTabVM> OrderTabVM { get; set; } = default!;
-
-
 }

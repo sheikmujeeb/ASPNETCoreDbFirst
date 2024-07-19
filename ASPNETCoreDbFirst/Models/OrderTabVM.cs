@@ -8,6 +8,7 @@ namespace ASPNETCoreDbFirst.Models
         [Key]
         public int OrderId { get; set; }
         [Required]
+        
         public string? OrderNumber { get; set; }
         [ForeignKey("Customer")]
         public int CustomerId { get; set; }
@@ -23,6 +24,8 @@ namespace ASPNETCoreDbFirst.Models
         public decimal? NetTotal { get; set; }
 
         public string ProductName { get; set; }
+        public string CustomerName { get; set; }
+
         [ForeignKey("StatusTab")]
         public int StatusId { get; set; }
         public int OrderItemId { get; set; }
@@ -36,5 +39,7 @@ namespace ASPNETCoreDbFirst.Models
         public decimal UnitPrice { get; set; }
 
         public decimal TotalAmount { get; set; }
+
+        public bool IsDeleted { get; set; }
     }
 }
