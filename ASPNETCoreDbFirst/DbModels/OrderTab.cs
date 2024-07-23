@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace ASPNETCoreDbFirst.DbModels;
 
 public partial class OrderTab
 {
-    [Key]
     public int OrderId { get; set; }
 
     public string? OrderNumber { get; set; }
@@ -21,9 +19,10 @@ public partial class OrderTab
 
     public decimal? ShippingFee { get; set; }
 
-    public decimal? NetTotal { get; set; }
+    public decimal NetTotal { get; set; }
 
     public int StatusId { get; set; }
+    public bool? IsDeleted { get; set; }
 
     public virtual Customer Customer { get; set; } = null!;
 

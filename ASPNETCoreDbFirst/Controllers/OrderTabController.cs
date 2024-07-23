@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Session;
 using NuGet.Versioning;
+using static NuGet.Packaging.PackagingConstants;
 
 
 
@@ -23,17 +24,30 @@ namespace ASPNETCoreDbFirst.Controllers
         {
             Context = context;
         }
-        // GET: OrderTabController
+        [HttpGet]
         public IActionResult List()
         {
-            var show = Context.OrderTabs.Include(o => o.Customer).Include(p => p.Status).ToList();
+
+            var show = Context.OrderTabs.Where(p => !p.IsDeleted.Value == true).Include(o => o.Customer).Include(o => o.Status).ToList();
+
             return View("List", show);
         }
 
         // GET: OrderTabController/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var orderTab = Context.OrderTabs.FirstOrDefaultAsync(m => m.OrderId == id);
+            if (orderTab == null)
+            {
+                return NotFound();
+            }
+
+            return View(orderTab);
         }
 
         // GET: OrderTabController/Create
@@ -42,6 +56,7 @@ namespace ASPNETCoreDbFirst.Controllers
             var result = Context.Customers.ToList().Where(p => !p.IsDeleted == true).Where(o => !o.IsActive == false);
             var response = Context.Products.ToList().Where(p => !p.IsDeleted == true).Where(o => !o.IsActive == false);
             var find = Context.StatusTabs.ToList();
+
             ViewBag.CustomerId = new SelectList(result, "CustomerId", "Name");
             ViewBag.ProductId = new SelectList(response, "ProductId", "Name");
             ViewBag.StatusId = new SelectList(find, "StatusId", "StatusName");
@@ -53,24 +68,45 @@ namespace ASPNETCoreDbFirst.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(OrderTabVM ordertabvm)
         {
-            var order = new OrderTab();
+            if (ModelState.IsValid)
             {
-                order.OrderNumber = ordertabvm.OrderNumber;
-                order.CustomerId = ordertabvm.CustomerId;
-                order.OrderDate = DateTime.Now;
-                order.SubTotal = ordertabvm.SubTotal;
-                order.Discount = ordertabvm.Discount;
-                order.ShippingFee = ordertabvm.ShippingFee;
-                order.NetTotal = ordertabvm.NetTotal;
-                order.StatusId = ordertabvm.StatusId;
-                Context.Add(order);
-                Context.SaveChanges();
+                var result = Context.Customers.ToList().Where(p => !p.IsDeleted == true).Where(o => !o.IsActive == false);
+                var response = Context.Products.ToList().Where(p => !p.IsDeleted == true).Where(o => !o.IsActive == false);
+                var find = Context.StatusTabs.ToList();
+                var order = new OrderTab();
+                {
+                    order.OrderNumber = ordertabvm.OrderNumber;
+                    order.CustomerId = ordertabvm.CustomerId;
+                    order.OrderDate = DateTime.Now;
+                    order.SubTotal = ordertabvm.SubTotal;
+                    order.Discount = ordertabvm.Discount;
+                    order.ShippingFee = ordertabvm.ShippingFee;
+                    order.NetTotal = ordertabvm.NetTotal;
+                    order.StatusId = ordertabvm.StatusId;
+                    Context.OrderTabs.Add(order);
+                    Context.SaveChanges();
 
-            };
-            HttpContext.Session.SetString("OrderTab", JsonConvert.SerializeObject(order));
+                };
+                var items = JsonConvert.DeserializeObject<List<OrderItem>>(HttpContext.Session.GetString("order"));
 
+                if (items != null)
+                {
+                    foreach (var item in items)
+                    {
+                        item.OrderId = order.OrderId;
+                        Context.OrderItems.Add(item);
+                    }
+                    Context.SaveChanges();
+                }
+
+                ViewBag.CustomerId = new SelectList(result, "CustomerId", "Name");
+                ViewBag.ProductId = new SelectList(response, "ProductId", "Name");
+                ViewBag.StatusId = new SelectList(find, "StatusId", "StatusName");
+            }
             return RedirectToAction(nameof(List));
+
         }
+
         [HttpGet]
         public JsonResult GetItems()
         {
@@ -86,7 +122,6 @@ namespace ASPNETCoreDbFirst.Controllers
         public JsonResult AddItem(OrderTabVM newItem)
         {
 
-
             var itemsJson = HttpContext.Session.GetString("order");
             var items = itemsJson != null ? JsonConvert.DeserializeObject<List<OrderTabVM>>(itemsJson) : new List<OrderTabVM>();
 
@@ -96,45 +131,131 @@ namespace ASPNETCoreDbFirst.Controllers
 
             return Json(items);
 
+
+
         }
         [HttpGet]
-        public ActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            var find= Context.OrderTabs.Find(id);
+            var result = Context.Customers.ToList().Where(p => !p.IsDeleted == true).Where(o => !o.IsActive == false);
+            var response = Context.Products.ToList().Where(p => !p.IsDeleted == true).Where(o => !o.IsActive == false);
+            var find = Context.StatusTabs.ToList();
 
 
-            HttpContext.Session.SetString("OrderTab", JsonConvert.SerializeObject(find));
 
-            return View("Create",find);
+            OrderTabVM order = new OrderTabVM();
 
-        }
-        [HttpPost]
-        public async Task<IActionResult> Edit(OrderTabVM Change,int id)
-        {
-            var record = HttpContext.Session.GetString("find");
-            if (record != null)
+            var execute = await Context.OrderTabs.FindAsync(id);
+            if (execute == null)
             {
-                var items = JsonConvert.DeserializeObject<OrderTabVM>(record);
+                return View(List);
+            }
 
-                
-                items.ProductId = Change.ProductId;
-                items.Quantity= Change.Quantity;
-                items.UnitPrice = Change.UnitPrice;
-                items.TotalAmount = Change.TotalAmount;
-                items.SubTotal= Change.SubTotal;
-                items.Discount= Change.Discount;
-                items.ShippingFee= Change.ShippingFee;
-                items.StatusId= Change.StatusId;
-                Context.Add(items);
-                Context.SaveChanges();
+            order.OrderNumber = execute.OrderNumber;
+            order.CustomerId = execute.CustomerId;
+            order.OrderDate = execute.OrderDate;
+            order.SubTotal = execute.SubTotal;
+            order.Discount = execute.Discount;
+            order.ShippingFee = execute.ShippingFee;
+            order.NetTotal = execute.NetTotal;
+            order.StatusId = execute.StatusId;
 
-            };
+            ViewBag.CustomerId = new SelectList(result, "CustomerId", "Name");
+            ViewBag.ProductId = new SelectList(response, "ProductId", "Name");
+            ViewBag.StatusId = new SelectList(find, "StatusId", "StatusName");
+            var itemsJson = HttpContext.Session.GetString("order");
+            var items = itemsJson != null ? JsonConvert.DeserializeObject<List<OrderTabVM>>(itemsJson) : new List<OrderTabVM>();
+            return View("Create", order);
+        }
+        //public async Task<IActionResult> Edit(int id)
+        //{
+        //    var result = Context.Customers.ToList().Where(p => !p.IsDeleted == true).Where(o => !o.IsActive == false);
+        //    var respose = Context.Products.ToList().Where(p => !p.IsDeleted == true).Where(o => !o.IsActive == false);
+        //    var find = Context.StatusTabs.ToList();
+        //    OrderTabVM orderTVM = new OrderTabVM();
+        //    if (id == null)
+        //    {
+        //        return View(List);
+        //    }
+        //    var order = await Context.OrderTabs.FindAsync(id);
+        //    //var orderitem = await _context.OrderItemTabs.FindAsync(id);
+        //    var orderitem = await Context.OrderItems.Where(x => x.OrderId == id).ToListAsync();
+        //    if (order == null)
+        //    {
+        //        return View(List);
+        //    }
+        //    orderTVM.OrderNumber = order.OrderNumber;
+        //    orderTVM.CustomerId = order.CustomerId;
+        //    orderTVM.OrderDate = order.OrderDate;
+        //    orderTVM.SubTotal = order.SubTotal;
+        //    orderTVM.Discount = order.Discount;
+        //    orderTVM.ShippingFee = order.ShippingFee;
+        //    orderTVM.NetTotal = order.NetTotal;
+        //    orderTVM.StatusId = order.StatusId;
 
-            return RedirectToAction(nameof(List));
+        //    foreach (var item in orderitem)
+        //    {
 
+        //        orderTVM.ProductId = item.ProductId;
+        //        orderTVM.Quantity = item.Quantity;
+        //        orderTVM.UnitPrice = item.UnitPrice;
+        //        orderTVM.TotalAmount = item.TotalAmount;
+
+
+        //    }
+
+        //    ViewBag.SelectedProductId = orderTVM.ProductId;
+
+
+        //    ViewBag.CustomersId = new SelectList(result, "CustomerId", "Name");
+        //    ViewBag.ProductId = new SelectList(respose, "ProductId", "Name");
+        //    ViewBag.StatusId = new SelectList(find, "StatusId", "StatusName");
+        //    var itemsJson = HttpContext.Session.GetString("order");
+        //    var items = itemsJson != null ? JsonConvert.DeserializeObject<List<OrderTabVM>>(itemsJson) : new List<OrderTabVM>();
+
+        //    return View("List", orderTVM);
+
+        //}
+        [HttpPost]
+        public async Task<IActionResult> Edit(OrderTabVM orderTab)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Retrieve the original order from session
+                    var originalOrder = HttpContext.Session.GetObject<OrderTab>("Create");
+
+                    if (originalOrder != null)
+                    {
+                        originalOrder.CustomerId = orderTab.CustomerId;
+                        originalOrder.OrderNumber = orderTab.OrderNumber;
+                        originalOrder.OrderDate = orderTab.OrderDate;
+                        originalOrder.NetTotal = orderTab.NetTotal;
+                        originalOrder.StatusId = orderTab.StatusId;
+
+                        Context.Update(originalOrder);
+                        await Context.SaveChangesAsync();
+
+                        // Clear session after saving
+                        HttpContext.Session.Remove("Create");
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
+                }
+                catch
+                {
+                    throw;
+
+                }
+                return RedirectToAction(nameof(List));
+            }
+            return View(orderTab);
         }
         //[HttpDelete]
-        //public JsonResult Remove(int id)
+        //public JsonResult Remove(OrderTabVM id)
         //{
         //    var itemsJson = HttpContext.Session.GetString("order");
         //    var items = itemsJson != null ? JsonConvert.DeserializeObject<List<OrderTabVM>>(itemsJson) : new List<OrderTabVM>();
@@ -154,123 +275,28 @@ namespace ASPNETCoreDbFirst.Controllers
         }
 
 
-
-        //public async Task<IActionResult> AddProduct(OrderedProduct vm)
-        //{
-        //    try
-        //    {
-        //        if (ModelState.IsValid)
-        //        {
-        //            if (vm.Flag == 1)
-        //            {
-        //                Product product = new Product();
-        //                using (var httpClient = new HttpClient())
-        //                {
-        //                    using (var response = await httpClient.GetAsync(_apiSettings.Value.BaseUrl + "Product/" + vm.ProductId))
-        //                    {
-        //                        string apiResponse = await response.Content.ReadAsStringAsync();
-        //                        product = JsonConvert.DeserializeObject<Product>(apiResponse);
-        //                    }
-        //                }
-
-        //                if (product == null || product.ProductId == 0)
-        //                {
-        //                    ModelState.AddModelError("ProductName", "Please add valid Product!");
-        //                    return Json(ModelState);
-        //                }
-        //                OrderedProduct op = new OrderedProduct();
-        //                op.ProductId = product.ProductId;
-        //                op.ProductCode = product.ProductCode;
-        //                op.ProductDescription = product.ProductDescription;
-        //                op.UoM = vm.UoM;
-        //                op.UnitPrice = vm.UnitPrice;
-        //                op.Quantity = vm.Quantity;
-        //                op.IsActive = true;
-        //                op.TotalAmount = Math.Round((decimal)(vm.UnitPrice * op.Quantity), 2);
-
-        //                List<OrderedProduct> orderlist = new List<OrderedProduct>();
-        //                if (HttpContext.Session.GetString("POI") == null)
-        //                    orderlist.Add(op);
-        //                else
-        //                {
-        //                    orderlist = JsonConvert.DeserializeObject<List<OrderedProduct>>(HttpContext.Session.GetString("POI"));
-        //                    orderlist.Add(op);
-        //                }
-
-        //                var serializedRecords = JsonConvert.SerializeObject(orderlist);
-        //                HttpContext.Session.SetString("POI", serializedRecords);
-
-        //                return Json(orderlist.Where(x => x.IsActive).ToList());
-        //            }
-        //            else if (vm.Flag == 2)
-        //            {
-        //                var orderlist = JsonConvert.DeserializeObject<List<OrderedProduct>>(HttpContext.Session.GetString("POI"));
-        //                foreach (var oi in orderlist)
-        //                {
-        //                    if (oi.ProductId == vm.ProductId)
-        //                        oi.IsActive = false;
-        //                }
-
-        //                var serializedRecords = JsonConvert.SerializeObject(orderlist);
-        //                HttpContext.Session.SetString("POI", serializedRecords);
-
-        //                orderlist = orderlist.Where(x => x.IsActive).ToList();
-        //                return Json(orderlist);
-        //            }
-        //            else
-        //            {
-        //                List<OrderedProduct> list = new List<OrderedProduct>();
-        //                using (var httpClient = new HttpClient())
-        //                {
-        //                    using (var response = await httpClient.GetAsync(_apiSettings.Value.BaseUrl + "PurchaseOrderItem/GetPurchaseOrderItems?poId=" + vm.PoId))
-        //                    {
-        //                        string apiResponse = await response.Content.ReadAsStringAsync();
-        //                        list = JsonConvert.DeserializeObject<List<OrderedProduct>>(apiResponse);
-        //                    }
-        //                }
-        //                var serializedRecords = JsonConvert.SerializeObject(list);
-        //                HttpContext.Session.SetString("POI", serializedRecords);
-
-        //                return Json(list);
-        //            }
-        //        }
-        //        return Json(ModelState);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json("Error: " + ex.Message);
-        //    }
-        //}
-
-
-
-        // GET: OrderTabController/Edit/5
-
-        public ActionResult PopupContent(OrderTab ordertab)
-        {
-            return PartialView("Popupwindow", ordertab);
-        }
-        
-        
-        // GET: OrderTabController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: OrderTabController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        [HttpGet]
+        public IActionResult Delete(int id)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                if (id != null)
+                {
+                    var order = Context.OrderTabs.Find(id);
+                    if (order != null)
+                    {
+                        order.IsDeleted = true;
+                        Context.SaveChanges();
+
+                    }
+                }
+                return RedirectToAction(nameof(List));
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                return Json(ex);
             }
+
         }
     }
 }

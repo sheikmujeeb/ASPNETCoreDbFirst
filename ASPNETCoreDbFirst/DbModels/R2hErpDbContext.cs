@@ -27,8 +27,6 @@ public partial class R2hErpDbContext : DbContext
 
     public virtual DbSet<StatusTab> StatusTabs { get; set; }
 
-
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Customer>(entity =>
@@ -69,7 +67,7 @@ public partial class R2hErpDbContext : DbContext
 
             entity.ToTable("OrderItem");
 
-            entity.Property(e => e.TotalPrice).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.NetTotal).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.UnitPrice).HasColumnType("decimal(18, 2)");
 
             entity.HasOne(d => d.Order).WithMany(p => p.OrderItems)

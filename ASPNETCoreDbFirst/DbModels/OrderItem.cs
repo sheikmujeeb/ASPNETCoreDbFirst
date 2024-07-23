@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ASPNETCoreDbFirst.DbModels;
 
 public partial class OrderItem
 {
     public int OrderItemId { get; set; }
-    [ForeignKey("OrderTab")]
+
     public int OrderId { get; set; }
 
     public int? ProductId { get; set; }
@@ -16,7 +15,7 @@ public partial class OrderItem
 
     public decimal UnitPrice { get; set; }
 
-    public decimal TotalPrice { get; set; }
+    public decimal NetTotal { get; set; }
 
     public bool? IsDeleted { get; set; }
 
