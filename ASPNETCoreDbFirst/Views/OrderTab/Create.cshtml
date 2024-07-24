@@ -8,27 +8,26 @@
 <head>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-       $(document).ready(function () {
-            function toIST() {
-                var now = new Date();
-                var utcTime = now.getTime() + (now.getTimezoneOffset() * 60000); // Convert to UTC time
-                var istOffset = 5.5 * 60 * 60000; // IST offset in milliseconds
-                var istTime = new Date(utcTime + istOffset); // Convert to IST
-
-                // Format date and time to "yyyy-MM-ddThh:mm" format
-                var year = istTime.getFullYear();
-                var month = ('0' + (istTime.getMonth() + 1)).slice(-2); // Months are zero-indexed
-                var day = ('0' + istTime.getDate()).slice(-2);
-                var hours = ('0' + istTime.getHours()).slice(-2);
-                var minutes = ('0' + istTime.getMinutes()).slice(-2);
-
-                return `${year}-${month}-${day}T${hours}:${minutes}`;
-            }
-
-            var currentISTDateTime = toIST();
-            $('#datetime').val(currentISTDateTime); // Set the value of the OrderDate input field
-        });
         $(document).ready(function () {
+            // function toIST() {
+            //     var now = new Date();
+            //     var utcTime = now.getTime() + (now.getTimezoneOffset() * 60000); // Convert to UTC time
+            //     var istOffset = 5.5 * 60 * 60000; // IST offset in milliseconds
+            //     var istTime = new Date(utcTime + istOffset); // Convert to IST
+
+            //     // Format date and time to "yyyy-MM-ddThh:mm" format
+            //     var year = istTime.getFullYear();
+            //     var month = ('0' + (istTime.getMonth() + 1)).slice(-2); // Months are zero-indexed
+            //     var day = ('0' + istTime.getDate()).slice(-2);
+            //     var hours = ('0' + istTime.getHours()).slice(-2);
+            //     var minutes = ('0' + istTime.getMinutes()).slice(-2);
+
+            //     return `${year}-${month}-${day}T${hours}:${minutes}`;
+            // }
+
+            // var currentISTDateTime = toIST();
+            // $('#datetime').val(currentISTDateTime); // Set the value of the OrderDate input field
+
 
             function calculateNetAmount() {
                 var subtotal = parseFloat($('#SubTotal').val()) || 0;
@@ -62,7 +61,7 @@
                     data: newItem,
                     method: "POST",
                     //contentType: "application/json",
-                    url: "@Url.Action("AddItem", "OrderTab")", 
+                    url: "@Url.Action("AddItem", "OrderTab")",
                     success: function (response) {
                         $("#productbody").empty();
                         $("#SubTotal").val('0');
@@ -301,7 +300,7 @@
                 <span asp-validation-for="SubTotal" class="text-danger"></span>
             </div>
             <div class="form-size">
-                <label asp-for="Discount" class="control-label"></label>
+                <label class="control-label">Discount(%Percentage)</label>
                 <input asp-for="Discount" id="Discount" class="form-control" />
                 <span asp-validation-for="Discount" class="text-danger"></span>
             </div>

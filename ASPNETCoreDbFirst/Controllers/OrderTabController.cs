@@ -18,27 +18,13 @@ namespace ASPNETCoreDbFirst.Controllers
         // GET: OrderTabController
         public IActionResult List()
         {
-            var show = _context.OrderTabs.Include(o => o.Customer).Include(p => p.Status).Where(o => !o.IsDeleted == true).ToList();
+            var show = _context.OrderTabs.Include(o => o.Customer).Include(p => p.Status).ToList();
             return View("List", show);
+
         }
-
-        //public async Task<IActionResult> Index()
-        //{
-        //    var result = _context.Customers.ToList().Where(p => !p.Isdeleted == true).Where(o => !o.IsActive == false);
-        //    var response = _context.Products.ToList().Where(p => !p.Isdeleted == true).Where(o => !o.IsActive == false);
-        //    var find = _context.StatusTabs.ToList();
-
-        //    ViewBag.CustomersId = new SelectList(result, "CustomersId", "Name");
-        //    ViewBag.ProductId = new SelectList(response, "ProductsId", "Name");
-        //    ViewBag.StatusId = new SelectList(find, "StatusId", "StatusName");
-        //    return View("Create");
-
-
-        //}
-
         public async Task<IActionResult> Details(int id)
         {
-            var order = await _context.OrderTabs.Include(o => o.Customer).Include(o => o.Status).Where(o => !o.IsDeleted == true).FirstOrDefaultAsync(o => o.OrderId == id);
+            var order = await _context.OrderTabs.Include(o => o.Customer).Include(o => o.Status).FirstOrDefaultAsync(o => o.OrderId == id);
 
             if (order == null)
             {
@@ -147,10 +133,18 @@ namespace ASPNETCoreDbFirst.Controllers
 
             if (ordervm.OrderId == 0)
             {
+
+                var existingOrder = await _context.OrderTabs.FirstOrDefaultAsync(o => o.OrderNumber == ordervm.OrderNumber);
+                if (existingOrder != null)
+                {
+                    ModelState.AddModelError("OrderNumber", "Order number already exists.");
+                    return View(ordervm);
+                }
+
                 OrderTab order = new OrderTab();
                 order.OrderNumber = ordervm.OrderNumber;
                 order.CustomerId = ordervm.CustomerId;
-                order.OrderDate = ordervm.OrderDate;
+                order.OrderDate = DateTime.Now;
                 order.SubTotal = ordervm.SubTotal;
                 order.Discount = ordervm.Discount;
                 order.ShippingFee = ordervm.ShippingFee;
@@ -225,22 +219,12 @@ namespace ASPNETCoreDbFirst.Controllers
         }
 
         [HttpGet]
-
-        public async Task<IActionResult> GetProductByUnitPrice(int productId)
-
+        public JsonResult GetProductByUnitPrice(int productId)
         {
 
-            var product = await _context.Products.FindAsync(productId);
+            var product = _context.Products.Where(option => option.ProductId == productId);
 
-            if (product == null)
-
-            {
-
-                return NotFound();
-
-            }
-
-            return View(product.UnitPrice);
+            return Json(product);
 
         }
         [HttpPost]

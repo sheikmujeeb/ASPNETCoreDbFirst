@@ -12,7 +12,6 @@ namespace ASPNETCoreDbFirst.Models
         public string? OrderNumber { get; set; }
         [ForeignKey("Customer")]
         public int CustomerId { get; set; }
-        [Required]
         public DateTime OrderDate { get; set; }
         [Required]
         public decimal? SubTotal { get; set; }
