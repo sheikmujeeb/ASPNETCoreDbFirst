@@ -19,9 +19,10 @@ public partial class OrderTab
 
     public decimal? ShippingFee { get; set; }
 
-    public decimal NetTotal { get; set; }
+    public decimal? NetTotal { get; set; }
 
-    public int StatusId { get; set; }
+    public int? StatusId { get; set; }
+
     public bool? IsDeleted { get; set; }
 
     public virtual Customer Customer { get; set; } = null!;

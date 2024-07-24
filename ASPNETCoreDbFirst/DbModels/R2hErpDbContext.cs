@@ -27,6 +27,7 @@ public partial class R2hErpDbContext : DbContext
 
     public virtual DbSet<StatusTab> StatusTabs { get; set; }
 
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Customer>(entity =>
@@ -77,6 +78,7 @@ public partial class R2hErpDbContext : DbContext
 
             entity.HasOne(d => d.Product).WithMany(p => p.OrderItems)
                 .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__OrderItem__Produ__1F2E9E6D");
         });
 

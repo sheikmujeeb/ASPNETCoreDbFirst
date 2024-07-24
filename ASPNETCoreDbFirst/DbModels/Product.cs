@@ -15,7 +15,7 @@ public partial class Product
 
     public DateTime? UpdatedOn { get; set; }
 
-    public bool? IsDeleted { get; set; }
+    public bool IsDeleted { get; set; }
 
     public bool IsActive { get; set; }
 

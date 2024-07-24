@@ -21,13 +21,13 @@ namespace ASPNETCoreDbFirst.Models
 
         public decimal? ShippingFee { get; set; }
 
-        public decimal NetTotal { get; set; }
+        public decimal? NetTotal { get; set; }
 
         public string ProductName { get; set; }
         public string CustomerName { get; set; }
         [Required]
         [ForeignKey("StatusTab")]
-        public int StatusId { get; set; }
+        public int? StatusId { get; set; }
         public int OrderItemId { get; set; }
 
         [Required]
