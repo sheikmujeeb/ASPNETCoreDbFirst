@@ -18,7 +18,7 @@ namespace ASPNETCoreDbFirst.Controllers
         // GET: OrderTabController
         public IActionResult List()
         {
-            var show = _context.OrderTabs.Include(o => o.Customer).Include(p => p.Status).ToList();
+            var show = _context.OrderTabs.Include(o => o.Customer).Include(p => p.Status).Where(s=>!s.IsDeleted == true).ToList();
             return View("List", show);
 
         }
@@ -43,7 +43,7 @@ namespace ASPNETCoreDbFirst.Controllers
 
             var viewModel = new
             {
-                order.OrderNumber,
+                OrderNumber=order.OrderNumber,
                 CustomerName = order.Customer.Name,
                 OrderDate = order.OrderDate,
                 SubTotal = order.SubTotal,
@@ -109,7 +109,8 @@ namespace ASPNETCoreDbFirst.Controllers
                 Discount = order.Discount,
                 ShippingFee = order.ShippingFee,
                 NetTotal = order.NetTotal,
-                StatusId = order.StatusId
+                StatusId = order.StatusId,
+                IsDeleted = false
             };
 
             ViewBag.OrderItems = JsonConvert.SerializeObject(orderItems);
@@ -134,7 +135,7 @@ namespace ASPNETCoreDbFirst.Controllers
             if (ordervm.OrderId == 0)
             {
 
-                var existingOrder = await _context.OrderTabs.FirstOrDefaultAsync(o => o.OrderNumber == ordervm.OrderNumber);
+                var existingOrder = await _context.OrderTabs.Where(o => o.OrderNumber == ordervm.OrderNumber && !o.IsDeleted).FirstOrDefault();
                 if (existingOrder != null)
                 {
                     ModelState.AddModelError("OrderNumber", "Order number already exists.");
@@ -146,6 +147,7 @@ namespace ASPNETCoreDbFirst.Controllers
                 order.CustomerId = ordervm.CustomerId;
                 order.OrderDate = DateTime.Now;
                 order.SubTotal = ordervm.SubTotal;
+                order.IsDeleted = false;
                 order.Discount = ordervm.Discount;
                 order.ShippingFee = ordervm.ShippingFee;
                 order.NetTotal = ordervm.NetTotal;
@@ -179,6 +181,7 @@ namespace ASPNETCoreDbFirst.Controllers
                 order.OrderNumber = ordervm.OrderNumber;
                 order.CustomerId = ordervm.CustomerId;
                 order.OrderDate = ordervm.OrderDate;
+                order.IsDeleted = false;
                 order.SubTotal = ordervm.SubTotal;
                 order.Discount = ordervm.Discount;
                 order.ShippingFee = ordervm.ShippingFee;

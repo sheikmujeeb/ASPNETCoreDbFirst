@@ -34,6 +34,7 @@ namespace ASPNETCoreDbFirst.Models
         public int ProductId { get; set; }
         [Required]
         public int Quantity { get; set; }
+        public bool IsDeleted { get; set; }
         [Required]
         public decimal UnitPrice { get; set; }
 
