@@ -28,103 +28,82 @@ namespace ASPNETCoreDbFirst.Controllers
         public IActionResult List()
         {
 
-            var show = Context.OrderTabs.Where(p => !p.IsDeleted.Value == true).Include(o => o.Customer).Include(o => o.Status).ToList();
+            var show = Context.OrderTabs.Where(p => !p.IsDeleted.Value).Include(o => o.Customer).Include(o => o.Status).ToList();
 
             return View("List", show);
         }
 
         // GET: OrderTabController/Details/5
-        private List<OrderTabVM> GetOrderItemsFromSession()
+        public async Task<IActionResult> Details(int id)
         {
-            var itemsJson = HttpContext.Session.GetString("order");
-            return itemsJson != null ? JsonConvert.DeserializeObject<List<OrderTabVM>>(itemsJson) : new List<OrderTabVM>();
-        }
-
-        private void SaveOrderItemsToSession(List<OrderTabVM> items)
-        {
-            HttpContext.Session.SetString("order", JsonConvert.SerializeObject(items));
-        }
-
-        // GET: OrderTabController/Create
-        [HttpGet]
-        public async Task<ActionResult> Create(int id)
-        {
-            var result = Context.Customers.Where(p => !p.IsDeleted && p.IsActive).ToList();
-            var response = Context.Products.Where(p => !p.IsDeleted && p.IsActive).ToList();
-            var find = Context.StatusTabs.ToList();
-            ViewBag.CustomersId = new SelectList(result, "CustomerId", "Name");
-            ViewBag.ProductId = new SelectList(response, "ProductId", "Name");
-            ViewBag.StatusId = new SelectList(find, "StatusId", "StatusName");
-
-
-            if (id == 0)
-            {
-                var date = new OrderTabVM
-                {
-                    OrderDate = DateTime.Now
-                };
-                return View(date);
-            }
-
-            var order = await Context.OrderTabs.Include(o => o.Customer).Include(o => o.Status).Include(o => o.OrderItems).ThenInclude(oi => oi.Product).FirstOrDefaultAsync(o => o.OrderId == id);
+            var order = await Context.OrderTabs.Include(o => o.Customer).Include(o => o.Status).Where(o => !o.IsDeleted == true).FirstOrDefaultAsync(o => o.OrderId == id);
 
             if (order == null)
             {
                 return NotFound();
             }
 
-            var orderItems = order.OrderItems.Where(oi => !oi.IsDeleted).Select(oi => new OrderTabVM { ProductId = oi.ProductId, ProductName = oi.Product.Name, Quantity = oi.Quantity, UnitPrice = oi.UnitPrice, TotalAmount = oi.TotalAmount }).ToList();
+            var orderItems = await Context.OrderItems.Where(oi => oi.OrderId == id && !oi.IsDeleted).Include(oi => oi.Product).ToListAsync();
 
-            SaveOrderItemsToSession(orderItems);
-
-            var viewModel = new OrderTabVM
+            var orderItemsDetails = orderItems.Select(oi => new
             {
-                OrderId = order.OrderId,
-                OrderNumber = order.OrderNumber,
-                CustomerId = order.CustomerId,
+                ProductName = oi.Product.Name,
+                Quantity = oi.Quantity,
+                TotalAmount = oi.TotalAmount,
+                UnitPrice = oi.UnitPrice
+            }).ToList();
+
+            var viewModel = new
+            {
+                order.OrderNumber,
+                CustomerName = order.Customer.Name,
                 OrderDate = order.OrderDate,
                 SubTotal = order.SubTotal,
                 Discount = order.Discount,
                 ShippingFee = order.ShippingFee,
                 NetTotal = order.NetTotal,
-                StatusId = order.StatusId
+                StatusName = order.Status.StatusName,
+                OrderItems = orderItemsDetails
             };
 
-            ViewBag.OrderItems = JsonConvert.SerializeObject(orderItems);
-            ViewBag.CustomersId = new SelectList(Context.Customers.Where(c => !c.IsDeleted && c.IsActive).ToList(), "CustomerId", "Name", order.CustomerId);
-            ViewBag.ProductId = new SelectList(Context.Products.Where(p => !p.IsDeleted && p.IsActive).ToList(), "ProductId", "Name");
-            ViewBag.StatusId = new SelectList(Context.StatusTabs.ToList(), "StatusId", "StatusName", order.StatusId);
-
-            return View(viewModel);
+            return Json(viewModel);
+        }
+        // GET: OrderTabController/Create
+        public ActionResult Create()
+        {
+            var result = Context.Customers.ToList().Where(p => !p.IsDeleted == true).Where(o => !o.IsActive == false);
+            var respose = Context.Products.ToList().Where(p => !p.IsDeleted == true).Where(o => !o.IsActive == false);
+            var find = Context.StatusTabs.ToList();
+            ViewBag.CustomersId = new SelectList(result, "CustomerId", "Name");
+            ViewBag.ProductId = new SelectList(respose, "ProductId", "Name");
+            ViewBag.StatusId = new SelectList(find, "StatusId", "StatusName");
+            return View();
         }
 
         // POST: OrderTabController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create(OrderTabVM ordervm)
+        public ActionResult Create(OrderTabVM ordertabvm)
         {
-            var customers = Context.Customers.Where(p => !p.IsDeleted && p.IsActive).ToList();
-            var products = Context.Products.Where(p => !p.IsDeleted && p.IsActive).ToList();
-            var statuses = Context.StatusTabs.ToList();
-            ViewBag.CustomersId = new SelectList(customers, "CustomerId", "Name");
-            ViewBag.ProductId = new SelectList(products, "ProductId", "Name");
-            ViewBag.StatusId = new SelectList(statuses, "StatusId", "StatusName");
+            var result = Context.Customers.ToList().Where(p => !p.IsDeleted == true).Where(o => !o.IsActive == false);
+            var respose = Context.Products.ToList().Where(p => !p.IsDeleted == true).Where(o => !o.IsActive == false);
+            var find = Context.StatusTabs.ToList();
+            OrderTab order = new OrderTab();
 
-            if (ordervm.OrderId == 0)
+
+            if (ordertabvm != null)
             {
-                OrderTab order = new OrderTab();
-                order.OrderNumber = ordervm.OrderNumber;
-                order.CustomerId = ordervm.CustomerId;
-                order.OrderDate = ordervm.OrderDate;
-                order.SubTotal = ordervm.SubTotal;
-                order.Discount = ordervm.Discount;
-                order.ShippingFee = ordervm.ShippingFee;
-                order.NetTotal = ordervm.NetTotal;
-                order.StatusId = ordervm.StatusId;
-
-                Context.OrderTabs.Add(order);
-                await Context.SaveChangesAsync();
-
+                order.OrderNumber = ordertabvm.OrderNumber;
+                order.CustomerId = ordertabvm.CustomerId;
+                order.OrderDate = ordertabvm.OrderDate;
+                order.SubTotal = ordertabvm.SubTotal;
+                order.Discount = ordertabvm.Discount;
+                order.IsDeleted = false;
+                order.ShippingFee = ordertabvm.ShippingFee;
+                order.NetTotal = ordertabvm.NetTotal;
+                order.StatusId = ordertabvm.StatusId;
+                Context.Add(order);
+                Context.SaveChanges();
                 var orderItem = JsonConvert.DeserializeObject<List<OrderItem>>(HttpContext.Session.GetString("order"));
                 if (orderItem != null)
                 {
@@ -133,61 +112,22 @@ namespace ASPNETCoreDbFirst.Controllers
                         item.OrderId = order.OrderId;
                         Context.OrderItems.Add(item);
                     }
-                    await Context.SaveChangesAsync();
+                    Context.SaveChanges();
                 }
-                HttpContext.Session.Remove("order");
+
                 return RedirectToAction(nameof(List));
+
+
             }
-            else
-            {
-                var order = await Context.OrderTabs.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.OrderId == ordervm.OrderId);
+            HttpContext.Session.SetString("OrderTab", JsonConvert.SerializeObject(order));
+            ViewBag.CustomersId = new SelectList(result, "CustomerId", "Name");
+            ViewBag.ProductId = new SelectList(respose, "ProductId", "Name");
+            ViewBag.StatusId = new SelectList(find, "StatusId", "StatusName");
 
-                if (order == null)
-                {
-                    return NotFound();
-                }
-
-                order.OrderNumber = ordervm.OrderNumber;
-                order.CustomerId = ordervm.CustomerId;
-                order.OrderDate = ordervm.OrderDate;
-                order.SubTotal = ordervm.SubTotal;
-                order.Discount = ordervm.Discount;
-                order.ShippingFee = ordervm.ShippingFee;
-                order.NetTotal = ordervm.NetTotal;
-                order.StatusId = ordervm.StatusId;
-
-                Context.Update(order);
-
-                var existingOrderItems = GetOrderItemsFromSession();
-                foreach (var item in existingOrderItems)
-                {
-                    var orderItem = order.OrderItems.FirstOrDefault(oi => oi.ProductId == item.ProductId);
-                    if (orderItem != null)
-                    {
-                        orderItem.Quantity = item.Quantity;
-                        orderItem.UnitPrice = item.UnitPrice;
-                        orderItem.TotalAmount = item.TotalAmount;
-                        Context.Update(orderItem);
-                    }
-                    else
-                    {
-                        orderItem = new OrderItem
-                        {
-                            OrderId = order.OrderId,
-                            ProductId = item.ProductId,
-                            Quantity = item.Quantity,
-                            UnitPrice = item.UnitPrice,
-                            TotalAmount = item.TotalAmount
-                        };
-                        Context.OrderItems.Add(orderItem);
-                    }
-                }
-
-                await Context.SaveChangesAsync();
-                HttpContext.Session.Remove("order");
-                return RedirectToAction(nameof(List));
-            }
+            return View(ordertabvm);
         }
+
+
 
 
         [HttpGet]
@@ -306,8 +246,7 @@ namespace ASPNETCoreDbFirst.Controllers
             {
                 try
                 {
-                    // Retrieve the original order from session
-                    var originalOrder = HttpContext.Session.GetObject<OrderTab>("Create");
+                    var originalOrder = HttpContext.Session.GetObject<OrderTab>("order");
 
                     if (originalOrder != null)
                     {
@@ -320,7 +259,7 @@ namespace ASPNETCoreDbFirst.Controllers
                         Context.Update(originalOrder);
                         await Context.SaveChangesAsync();
 
-                        // Clear session after saving
+                        //  after saving
                         HttpContext.Session.Remove("Create");
                     }
                     else
