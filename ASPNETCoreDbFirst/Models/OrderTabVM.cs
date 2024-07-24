@@ -14,17 +14,17 @@ namespace ASPNETCoreDbFirst.Models
         public int CustomerId { get; set; }
         [Required]
         public DateTime OrderDate { get; set; }
-
+        [Required]
         public decimal? SubTotal { get; set; }
-
+        [Required]
         public decimal? Discount { get; set; }
-
+        [Required]
         public decimal? ShippingFee { get; set; }
+        [Required]
+        public decimal? NetTotal { get; set; }
 
-        public decimal NetTotal { get; set; }
-
-        public string ProductName { get; set; }
-        public string CustomerName { get; set; }
+        public string ProductName { get; set; } =null!;
+        public string CustomerName { get; set; } = null!;
         [Required]
         [ForeignKey("StatusTab")]
         public int? StatusId { get; set; }
@@ -35,10 +35,10 @@ namespace ASPNETCoreDbFirst.Models
         public int ProductId { get; set; }
         [Required]
         public int Quantity { get; set; }
-
+        [Required]
         public decimal UnitPrice { get; set; }
 
         public decimal TotalAmount { get; set; }
-        public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+
     }
 }

@@ -18,7 +18,7 @@ namespace ASPNETCoreDbFirst.Controllers
         // GET: ProductController
         public IActionResult List()
         {
-            var show = Context.Products.Where(p => !p.IsDeleted.Value == true).ToList();
+            var show = Context.Products.Where(p => !p.IsDeleted).ToList();
             return View("List",show);
         }
 

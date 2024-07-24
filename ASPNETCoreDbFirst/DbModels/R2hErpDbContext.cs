@@ -27,7 +27,6 @@ public partial class R2hErpDbContext : DbContext
 
     public virtual DbSet<StatusTab> StatusTabs { get; set; }
 
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Customer>(entity =>
@@ -70,16 +69,6 @@ public partial class R2hErpDbContext : DbContext
 
             entity.Property(e => e.TotalAmount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.UnitPrice).HasColumnType("decimal(18, 2)");
-
-            entity.HasOne(d => d.Order).WithMany(p => p.OrderItems)
-                .HasForeignKey(d => d.OrderId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrderItem__Order__1E3A7A34");
-
-            entity.HasOne(d => d.Product).WithMany(p => p.OrderItems)
-                .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrderItem__Produ__1F2E9E6D");
         });
 
         modelBuilder.Entity<OrderTab>(entity =>
@@ -102,7 +91,6 @@ public partial class R2hErpDbContext : DbContext
 
             entity.HasOne(d => d.Status).WithMany(p => p.OrderTabs)
                 .HasForeignKey(d => d.StatusId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__OrderTab__Status__1B5E0D89");
         });
 

@@ -35,8 +35,8 @@ namespace ASPNETCoreDbFirst.Controllers
         // GET: OrderController/Create
         public IActionResult Create()
         {
-            var result= Context.Customers.ToList().Where(p => !p.IsDeleted.Value == true).Where(o => !o.IsActive == false);
-            var search=Context.Products.ToList().Where(p => !p.IsDeleted.Value == true).Where(o => !o.IsActive == false);
+            var result= Context.Customers.ToList().Where(p => !p.IsDeleted).Where(o => !o.IsActive == false);
+            var search=Context.Products.ToList().Where(p => !p.IsDeleted).Where(o => !o.IsActive == false);
             ViewBag.CustomerId = new SelectList(result, "CustomerId", "Name");
             ViewBag.ProductId = new SelectList(search, "ProductId", "Name");
 

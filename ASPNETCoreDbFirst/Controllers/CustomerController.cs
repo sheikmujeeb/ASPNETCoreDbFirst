@@ -18,7 +18,7 @@ namespace ASPNETCoreDbFirst.Controllers
         }
         public IActionResult List()
         {
-           var show= Context.Customers.Where(p=>!p.IsDeleted.Value==true).ToList();
+           var show= Context.Customers.Where(p=>!p.IsDeleted).ToList();
            return View("List",show);
         }
 
