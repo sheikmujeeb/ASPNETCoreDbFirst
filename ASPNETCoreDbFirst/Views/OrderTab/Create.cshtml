@@ -49,47 +49,7 @@
             });
 
 
-            $('#addProduct').click(function () {
-                var newItem = {
-                    ProductId: $('#ProductId').val(),
-                    ProductName: $('#ProductId option:selected').text(),
-                    Quantity: $('#Quantity').val(),
-                    UnitPrice: $('#UnitPrice').val(),
-                    TotalAmount: (parseInt($('#Quantity').val()) || 0) * (parseFloat($('#UnitPrice').val()) || 0)
-                };
-                $.ajax({
-                    data: newItem,
-                    method: "POST",
-                    //contentType: "application/json",
-                    url: "@Url.Action("AddItem", "OrderTab")",
-                    success: function (response) {
-                        $("#productbody").empty();
-                        $("#SubTotal").val('0');
-                        var subtotal = 0;
-
-                        $.each(response, function (index, item) {
-
-                            var result = "<tr><td><input type='button' id='editproduct' value='Edit' class='btn btn-outline-primary'/></td>" +
-                                "<td> <input type='button' id = 'removeproduct' value = 'Delete' class='btn btn-outline-primary'/> </td>" +
-                                "<td>" + item.productName + "</td>" +
-                                "<td>" + item.quantity + "</td>" +
-                                "<td>" + item.unitPrice.toFixed(2) + "</td>" +
-                                "<td>" + item.totalAmount.toFixed(2) + "</td></tr>";
-                            $("#productbody").append(result);
-                            subtotal = subtotal + item.totalAmount;
-
-                        });
-                        $("#SubTotal").val(subtotal);
-                        $('#ProductId').val('');
-                        $('#Quantity').val('');
-                        $('#UnitPrice').val('');
-                        calculateNetAmount();
-                    },
-                    error: function (response) {
-                        alert(response.Error);
-                    }
-                });
-            });
+           
 
             $('#removeproduct').click(function () {
                 ProductId: $('#ProductId').val(),
@@ -111,22 +71,67 @@
             });
 
             $('#addProduct').click(function () {
-                var isValid = true;
+                var productId = $('#productId').val();
+                var quantity = $('#quantity').val();
 
-                // Validate Product
-                if ($('#ProductId').val() === "") {
-                    alert("Please select a product.");
-                    isValid = false;
+                if (!productId || productId === '--Select--') {
+                    $('#message').text('Please select a product.').css('color', 'red');
+                    return;
                 }
-
-                // Validate Quantity
-                if ($('#Quantity').val() === "" || $('#quantity').val() <= 0) {
-                    alert("Please enter a valid quantity.");
-                    isValid = false;
+                if (quantity >= 1) {
+                    $('#message').text('Please enter a valid quantity.').css('color', 'red');
+                    return;
                 }
+                else
+                {
+                    alert("Item Added Succesfullly...");
+                    function addproduct() {
+                        var newItem = {
+                            ProductId: $('#ProductId').val(),
+                            ProductName: $('#ProductId option:selected').text(),
+                            Quantity: $('#Quantity').val(),
+                            UnitPrice: $('#UnitPrice').val(),
+                            TotalAmount: (parseInt($('#Quantity').val()) || 0) * (parseFloat($('#UnitPrice').val()) || 0)
+                        };
+                        $.ajax({
+                            data: newItem,
+                            method: "POST",
+                            //contentType: "application/json",
+                            url: "@Url.Action("AddItem", "OrderTab")",
+                            success: function (response) {
 
-                if (isValid) {
-                    alert("Item added successfully.");
+                                if (quantity != 0) {
+                                    $("#productbody").empty();
+                                    $("#SubTotal").val('0');
+                                    var subtotal = 0;
+
+                                    $.each(response, function (index, item) {
+
+                                        var result = "<tr><td><input type='button' id='editproduct' value='Edit' class='btn btn-outline-primary'/></td>" +
+                                            "<td> <input type='button' id = 'removeproduct' value = 'Delete' class='btn btn-outline-primary'/> </td>" +
+                                            "<td>" + item.productName + "</td>" +
+                                            "<td>" + item.quantity + "</td>" +
+                                            "<td>" + item.unitPrice.toFixed(2) + "</td>" +
+                                            "<td>" + item.totalAmount.toFixed(2) + "</td></tr>";
+                                        $("#productbody").append(result);
+                                        subtotal = subtotal + item.totalAmount;
+
+                                    });
+                                    $("#SubTotal").val(subtotal);
+                                    $('#ProductId').val('');
+                                    $('#Quantity').val('');
+                                    $('#UnitPrice').val('');
+                                    calculateNetAmount();
+                                }
+                                else {
+                                    alert("Enter Quantity");
+                                }
+                            },
+                            error: function (response) {
+                                alert(response.Error);
+                            }
+                        });
+                    };
                 }
             });
 
@@ -248,8 +253,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Quantity" class="control-label"></label>
-                <input asp-for="Quantity" id="Quantity" class="form-control" />
-                <span asp-validation-for="Quantity" class="text-danger"></span>
+                @Html.TextBox("Quantity", null, new { id = "quantity", type = "number", min = "1" })
             </div>
             <div class="form-group">
                 <label asp-for="UnitPrice" class="control-label"></label>
@@ -326,3 +330,8 @@
     </form>
 </body>
 </html>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

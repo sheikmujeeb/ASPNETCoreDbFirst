@@ -10,7 +10,7 @@ namespace ASPNETCoreDbFirst.Models
         public int OrderId { get; set; }
         [Required]
         public string? OrderNumber { get; set; }
-        [ForeignKey("Customer")]
+
         public int CustomerId { get; set; }
         public DateTime OrderDate { get; set; }
         [Required]
@@ -25,12 +25,10 @@ namespace ASPNETCoreDbFirst.Models
         public string ProductName { get; set; } =null!;
         public string CustomerName { get; set; } = null!;
         [Required]
-        [ForeignKey("StatusTab")]
         public int? StatusId { get; set; }
         public int OrderItemId { get; set; }
 
         [Required]
-        [ForeignKey("Product")]
         public int ProductId { get; set; }
         [Required]
         public int Quantity { get; set; }
