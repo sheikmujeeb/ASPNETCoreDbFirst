@@ -27,10 +27,7 @@ namespace ASPNETCoreDbFirst.Models
         [Required]
         public int? StatusId { get; set; }
         public int OrderItemId { get; set; }
-
-        [Required]
         public int ProductId { get; set; }
-        [Required]
         public int Quantity { get; set; }
         public bool IsDeleted { get; set; }
         [Required]
@@ -38,5 +35,6 @@ namespace ASPNETCoreDbFirst.Models
 
         public decimal TotalAmount { get; set; }
 
+   
     }
 }

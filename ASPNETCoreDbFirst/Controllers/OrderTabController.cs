@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace ASPNETCoreDbFirst.Controllers
 {
@@ -18,7 +19,7 @@ namespace ASPNETCoreDbFirst.Controllers
         // GET: OrderTabController
         public IActionResult List()
         {
-            var show = _context.OrderTabs.Include(o => o.Customer).Include(p => p.Status).Where(s=>!s.IsDeleted == true).ToList();
+            var show = _context.OrderTabs.Include(o => o.Customer).Include(p => p.Status).Where(s => !s.IsDeleted == true).ToList();
             return View("List", show);
 
         }
@@ -43,7 +44,7 @@ namespace ASPNETCoreDbFirst.Controllers
 
             var viewModel = new
             {
-                OrderNumber=order.OrderNumber,
+                OrderNumber = order.OrderNumber,
                 CustomerName = order.Customer.Name,
                 OrderDate = order.OrderDate,
                 SubTotal = order.SubTotal,
@@ -58,8 +59,12 @@ namespace ASPNETCoreDbFirst.Controllers
         }
         private List<OrderTabVM> GetOrderItemsFromSession()
         {
-            var itemsJson = HttpContext.Session.GetString("order");
-            return itemsJson != null ? JsonConvert.DeserializeObject<List<OrderTabVM>>(itemsJson) : new List<OrderTabVM>();
+            var items = HttpContext.Session.GetString("Order");
+            if (items != null)
+            {
+                return JsonConvert.DeserializeObject<List<OrderTabVM>>(items);
+            }
+            return new List<OrderTabVM>();
         }
 
         private void SaveOrderItemsToSession(List<OrderTabVM> items)
@@ -109,8 +114,8 @@ namespace ASPNETCoreDbFirst.Controllers
                 Discount = order.Discount,
                 ShippingFee = order.ShippingFee,
                 NetTotal = order.NetTotal,
-                StatusId = order.StatusId,
-                IsDeleted = false
+                StatusId = order.StatusId
+
             };
 
             ViewBag.OrderItems = JsonConvert.SerializeObject(orderItems);
@@ -125,108 +130,109 @@ namespace ASPNETCoreDbFirst.Controllers
         [HttpPost]
         public async Task<ActionResult> Create(OrderTabVM ordervm)
         {
-            if (ModelState.IsValid)
+            var customers = _context.Customers.Where(p => !p.IsDeleted && p.IsActive).ToList();
+            var products = _context.Products.Where(p => !p.IsDeleted && p.IsActive).ToList();
+            var statuses = _context.StatusTabs.ToList();
+            ViewBag.CustomerId = new SelectList(customers, "CustomerId", "Name");
+            ViewBag.ProductId = new SelectList(products, "ProductId", "Name");
+            ViewBag.StatusId = new SelectList(statuses, "StatusId", "StatusName");
+
+            if (ordervm.OrderId == 0)
             {
-                var customers = _context.Customers.Where(p => !p.IsDeleted && p.IsActive).ToList();
-                var products = _context.Products.Where(p => !p.IsDeleted && p.IsActive).ToList();
-                var statuses = _context.StatusTabs.ToList();
-                ViewBag.CustomerId = new SelectList(customers, "CustomerId", "Name");
-                ViewBag.ProductId = new SelectList(products, "ProductId", "Name");
-                ViewBag.StatusId = new SelectList(statuses, "StatusId", "StatusName");
-
-                if (ordervm.OrderId == 0)
+                if (!string.IsNullOrEmpty(ordervm.OrderNumber))
                 {
-                    var items = GetOrderItemsFromSession();
+                    var existingOrder = await _context.OrderTabs
+                        .AnyAsync(o => o.OrderNumber == ordervm.OrderNumber && (o.IsDeleted == false || o.IsDeleted == null));
 
-                    var existingOrder = items.Where(o => o.OrderNumber == ordervm.OrderNumber && !o.IsDeleted).FirstOrDefault();
-
-                    //var existingOrder = await _context.OrderTabs.FirstOrDefault(o => o.OrderNumber == ordervm.OrderNumber);
-
-                    if (existingOrder != null)
+                    if (existingOrder)
                     {
-                        ModelState.AddModelError("OrderNumber", "Order number already exists.......");
+                        ModelState.AddModelError("OrderNumber", "Order number already exists.");
                         return View(ordervm);
                     }
+                }
 
-                    OrderTab order = new OrderTab();
-                    order.OrderNumber = ordervm.OrderNumber;
-                    order.CustomerId = ordervm.CustomerId;
-                    order.OrderDate = DateTime.Now;
-                    order.SubTotal = ordervm.SubTotal;
-                    order.IsDeleted = false;
-                    order.Discount = ordervm.Discount;
-                    order.ShippingFee = ordervm.ShippingFee;
-                    order.NetTotal = ordervm.NetTotal;
-                    order.StatusId = ordervm.StatusId;
+                OrderTab order = new OrderTab
+                {
 
-                    _context.OrderTabs.Add(order);
+                    OrderNumber = ordervm.OrderNumber,
+                    CustomerId = ordervm.CustomerId,
+                    OrderDate = DateTime.Now,
+                    SubTotal = ordervm.SubTotal,
+                    IsDeleted = false,
+                    Discount = ordervm.Discount,
+                    ShippingFee = ordervm.ShippingFee,
+                    NetTotal = ordervm.NetTotal,
+                    StatusId = ordervm.StatusId,
+                };
+
+
+                _context.OrderTabs.Add(order);
+                await _context.SaveChangesAsync();
+
+                var temp = (HttpContext.Session.GetString("order"));
+                var orderItem = JsonConvert.DeserializeObject<List<OrderItem>>(temp);
+                if (orderItem != null)
+                {
+                    foreach (var item in orderItem)
+                    {
+                        item.OrderId = order.OrderId;
+                        _context.OrderItems.Add(item);
+                    }
                     await _context.SaveChangesAsync();
+                }
+                HttpContext.Session.Remove("order");
+                return RedirectToAction(nameof(List));
+            }
+            else
+            {
+                var order = await _context.OrderTabs.Include(o => o.OrderItemTabs).FirstOrDefaultAsync(o => o.OrderId == ordervm.OrderId);
 
-                    var orderItem = JsonConvert.DeserializeObject<List<OrderItem>>(HttpContext.Session.GetString("order"));
+                if (order == null)
+                {
+                    return NotFound();
+                 }
+
+                order.OrderNumber = ordervm.OrderNumber;
+                order.CustomerId = ordervm.CustomerId;
+                order.OrderDate = ordervm.OrderDate;
+                order.IsDeleted = false;
+                order.SubTotal = ordervm.SubTotal;
+                order.Discount = ordervm.Discount;
+                order.ShippingFee = ordervm.ShippingFee;
+                order.NetTotal = ordervm.NetTotal;
+                order.StatusId = ordervm.StatusId;
+
+                _context.OrderTabs.Update(order);
+
+                var existingOrderItems = GetOrderItemsFromSession();
+                foreach (var item in existingOrderItems)
+                {
+                    var orderItem = order.OrderItemTabs.FirstOrDefault(oi => oi.ProductId == item.ProductId);
                     if (orderItem != null)
                     {
-                        foreach (var item in orderItem)
-                        {
-                            item.OrderId = order.OrderId;
-                            _context.OrderItems.Add(item);
-                        }
-                        await _context.SaveChangesAsync();
+                        orderItem.Quantity = item.Quantity;
+                        orderItem.UnitPrice = item.UnitPrice;
+                        orderItem.TotalAmount = item.TotalAmount;
+                        _context.OrderItems.Update(orderItem);
                     }
-                    HttpContext.Session.Remove("order");
-                    return RedirectToAction(nameof(List));
-                }
-                else
-                {
-                    var order = await _context.OrderTabs.Include(o => o.OrderItemTabs).FirstOrDefaultAsync(o => o.OrderId == ordervm.OrderId);
-
-                    if (order == null)
+                    else
                     {
-                        return NotFound();
-                    }
-
-                    order.OrderNumber = ordervm.OrderNumber;
-                    order.CustomerId = ordervm.CustomerId;
-                    order.OrderDate = ordervm.OrderDate;
-                    order.IsDeleted = false;
-                    order.SubTotal = ordervm.SubTotal;
-                    order.Discount = ordervm.Discount;
-                    order.ShippingFee = ordervm.ShippingFee;
-                    order.NetTotal = ordervm.NetTotal;
-                    order.StatusId = ordervm.StatusId;
-
-                    _context.Update(order);
-
-                    var existingOrderItems = GetOrderItemsFromSession();
-                    foreach (var item in existingOrderItems)
-                    {
-                        var orderItem = order.OrderItemTabs.FirstOrDefault(oi => oi.ProductId == item.ProductId);
-                        if (orderItem != null)
+                        orderItem = new OrderItem
                         {
-                            orderItem.Quantity = item.Quantity;
-                            orderItem.UnitPrice = item.UnitPrice;
-                            orderItem.TotalAmount = item.TotalAmount;
-                            _context.Update(orderItem);
-                        }
-                        else
-                        {
-                            orderItem = new OrderItem
-                            {
-                                OrderId = order.OrderId,
-                                ProductId = item.ProductId,
-                                Quantity = item.Quantity,
-                                UnitPrice = item.UnitPrice,
-                                TotalAmount = item.TotalAmount
-                            };
-                            _context.OrderItems.Add(orderItem);
-                        }
+                            OrderId = order.OrderId,
+                            ProductId = item.ProductId,
+                            Quantity = item.Quantity,
+                            UnitPrice = item.UnitPrice,
+                            TotalAmount = item.TotalAmount
+                        };
+                        _context.OrderItems.Add(orderItem);
                     }
-
-                    await _context.SaveChangesAsync();
-                    HttpContext.Session.Remove("order");
-                    return RedirectToAction(nameof(List));
                 }
+
+                await _context.SaveChangesAsync();
+                HttpContext.Session.Remove("order");
+                return RedirectToAction(nameof(List));
             }
-            return View(ordervm);
         }
 
         [HttpGet]
@@ -238,20 +244,9 @@ namespace ASPNETCoreDbFirst.Controllers
             return Json(product);
 
         }
-        [HttpPost]
-        public JsonResult AddItem(OrderTabVM newItem)
-        {
-            var items = GetOrderItemsFromSession();
-            var product = _context.Products.Find(newItem.ProductId);
-            if (product != null)
-            {
-                newItem.ProductName = product.Name;
-                items.Add(newItem);
-                SaveOrderItemsToSession(items);
-            }
-           return Json(items);
-        }
-       // POST: OrderTabController/Delete/5
+       
+
+        // POST: OrderTabController/Delete/5
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
@@ -268,6 +263,85 @@ namespace ASPNETCoreDbFirst.Controllers
             await _context.SaveChangesAsync();
             return View(List);
         }
-    }
 
+
+        public IActionResult AddItem(OrderTabVM newItem)
+        {
+            var items = GetOrderItemsFromSession();
+
+            var product = _context.Products.Find(newItem.ProductId);
+
+            if (product != null)
+            {
+                newItem.ProductName = product.Name;
+
+                // Checking if the product already exists in session or not
+                var existingItem = items.FirstOrDefault(x => x.ProductId == newItem.ProductId);
+
+                if (existingItem != null)
+                {
+                    existingItem.Quantity += newItem.Quantity;
+                    existingItem.TotalAmount += existingItem.Quantity * existingItem.UnitPrice;
+
+                }
+                else
+                {
+                    newItem.TotalAmount = newItem.Quantity * newItem.UnitPrice;
+                    items.Add(newItem);
+                }
+
+                SaveOrderItemsToSession(items);
+            }
+
+            return Json(items);
+        }
+        public IActionResult RemoveItem(int productid)
+        {
+            var items = _context.OrderItems.FirstOrDefault(i => i.ProductId == productid);
+            if (items != null)
+            {
+                _context.OrderItems.Remove(items);
+                _context.SaveChanges();
+            }
+            var order = _context.OrderItems.Select(i => new
+            {
+                i.ProductId,
+                i.Product.Name,
+                i.Quantity,
+                i.UnitPrice,
+                i.TotalAmount
+            }).ToList();
+            return Json(order); 
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> CheckOrderNumber(string orderNumber)
+        {
+            if (string.IsNullOrEmpty(orderNumber))
+            {
+                return Json(new { exists = false });
+            }
+
+            var existingOrder = await _context.OrderTabs
+                .AnyAsync(o => o.OrderNumber == orderNumber && (o.IsDeleted == false || o.IsDeleted == null));
+
+            return Json(new { exists = existingOrder });
+        }
+
+        public IActionResult GetExistingItems(int orderId)
+        {
+            var orderItems = _context.OrderItems.Include(o => o.Product).Where(o => o.OrderId == orderId).ToList();
+            var items = orderItems.Select(o => new OrderTabVM
+            {
+                ProductId = o.ProductId,
+                ProductName = o.Product.Name,
+                Quantity = o.Quantity,
+                UnitPrice = o.UnitPrice,
+                TotalAmount = o.Quantity * o.UnitPrice
+            }).ToList();
+
+            return Json(items);
+        }
+    }
+    
 }
