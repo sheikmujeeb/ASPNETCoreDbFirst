@@ -11,18 +11,48 @@
 
     <script>
         $(document).ready(function () {
+            function toggleSubmitButton() {
+                var hasProducts = $("#productbody tr").length > 0;
+
+                if (hasProducts) {
+                    $("#submitOrderButton").removeClass('btn-red btn-disabled').addClass('btn-green').prop('disabled', false);
+                    $("#submitAlert").hide();
+                } else {
+                    $("#submitOrderButton").removeClass('btn-green btn-disabled').addClass('btn-red').prop('disabled', true);
+                    $("#submitAlert").hide();
+                }
+            }
+            toggleSubmitButton();
 
             $("#orderForm").submit(function (e) {
                 e.preventDefault();
                 var orderNumber = $("#OrderNumber").val();
+                var orderId = $('#OrderId').val();
 
-                $.getJSON('@Url.Action("CheckOrderNumber", "OrderTab")', { orderNumber: orderNumber }, function (data) {
-                    if (data.exists) {
-                        $("#orderNumberExistsAlert").show();
-                    } else {
-                        $("#orderForm").off("submit").submit();
-                    }
-                });
+                if ($("#productbody tr").length === 0) {
+                    // Show the alert if there are no products
+                    $("#submitAlert").show();
+                    return; // Prevent form submission
+                }
+
+                $("#submitAlert").hide(); // Hide alert if there are products
+
+                if (!orderId || orderId == 0) {
+                    $.getJSON('@Url.Action("CheckOrderNumber", "OrderTab")', { orderNumber: orderNumber, orderId: orderId }, function (data) {
+                        if (data.exists) {
+                            $("#orderNumberExistsAlert").show();
+                        } else {
+                            $("#orderForm").off("submit").submit();
+                        }
+                    });
+                } else {
+                    $("#orderForm").off("submit").submit();
+                }
+            });
+
+            // Recalculate NetAmount when Discount or ShippingFee changes
+            $('#Discount, #ShippingFee').on('input', function () {
+                calculateNetAmount();
             });
             function GetProductByUnitPrice() {
                 var selectedValue = $("#ProductId").val();
@@ -72,7 +102,7 @@
                 GetProductByUnitPrice()
             });
 
-
+      
 
             $('#removeproduct').click(function () {
                 ProductId: $('#ProductId').val(),
@@ -85,6 +115,7 @@
                             // Handle success
                             alert('Record deleted successfully!');
                             // Optionally, remove the deleted record from the DOM
+                            toggleSubmitButton();
                         },
                         error: function (xhr, status, error) {
                             // Handle error
@@ -93,7 +124,7 @@
                     });
             });
 
-
+       
 
             $('#addProduct').click(function (event) {
                 event.preventDefault();
@@ -120,8 +151,8 @@
                         var subtotal = 0;
                         $.each(response, function (index, item) {
                             var row = '<tr>' +
-                                "<td><input type='button' class = 'editproduct' value = 'Edit' class='btn btn-outline-primary' /> </td>" +
-                                "<td><input type='button' class = 'removeproduct' value = 'Delete' class='btn btn-outline-primary' /> </td>" +
+                                "<td><input type='button' class = 'editproduct btn btn-outline-primary' value = 'Edit' /> </td>" +
+                                "<td><input type='button' class = 'removeproduct btn btn-outline-primary' value = 'Delete' /> </td>" +
                                 '<td>' + item.productName + '</td>' +
                                 '<td>' + item.quantity + '</td>' +
                                 '<td>' + item.unitPrice + '</td>' +
@@ -135,13 +166,32 @@
                             $('#Quantity').val(''),
                             $('#UnitPrice').val(''),
                             calculateNetAmount();
-
+                        toggleSubmitButton();
+                      
                     },
                     error: function (response) {
                         alert('Error adding item.');
                     }
                 });
             });
+
+            function clearSessionAndPerformAction(actionUrl) {
+                // Send request to clear session
+                fetch('@Url.Action("ClearSession", "OrderTab")', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                }).then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // After clearing session, perform the action
+                            window.location.href = actionUrl; // Redirect to the specified URL
+                        } else {
+                            console.error('Failed to clear session.');
+                        }
+                    }).catch(error => {
+                        console.error('Error clearing session:', error);
+                    });
+            }
 
             // Load existing order items if available
             var existingOrderItems = @Html.Raw(ViewBag.OrderItems ?? "[]");
@@ -164,12 +214,13 @@
             $(document).on('click', '.editproduct', function () {
                 var row = $(this).closest('tr');
                 var productId = row.data('product-id');
+                var productName = row.find('td:eq(2)').text();
                 var quantity = row.find('td:eq(3)').text();
                 var unitPrice = row.find('td:eq(4)').text();
 
-                    $('#ProductId').val(productId);
-                    $('#Quantity').val(quantity);
-                    $('#UnitPrice').val(unitPrice);
+                $('#ProductId').val(productId).trigger('change');
+                $('#Quantity').val(quantity);
+                $('#UnitPrice').val(unitPrice);
                 $('#addProduct').click(function (event) {
                     event.preventDefault();
                 });
@@ -201,6 +252,8 @@
                         });
                         $("#SubTotal").val(subtotal.toFixed(2));
                         calculateNetAmount();
+                        toggleSubmitButton();
+                       
                     },
                     error: function (response) {
                         alert('Error removing item.');
@@ -272,6 +325,25 @@
             align-items: center;
             justify-items: space-between;
         }
+
+        .btn-red {
+            background-color: red;
+            border: none;
+            color: white;
+        }
+
+        .btn-green {
+            background-color: green;
+            border: none;
+            color: white;
+        }
+
+        .btn-disabled {
+            background-color: gray;
+            border: none;
+            color: white;
+            cursor: not-allowed;
+        }
     </style>
 
 </head>
@@ -284,68 +356,70 @@
         <br />
         <div class="container">
 
-           @*  <div class="form-group">
-                @*  <label asp-for="OrderNumber"  class="control-label"></label>
-                <input type="text" id="OrderNumber" class="form-control" />
-                <span id="orderNumberError" class="text-danger"></span> 
-                <label asp-for="OrderNumber" class="control-label"></label>
-                <input asp-for="OrderNumber" class="form-control" />
-                <span asp-validation-for="OrderNumber" class="text-danger"></span>
+            @*  <div class="form-group">
+            @*  <label asp-for="OrderNumber"  class="control-label"></label>
+            <input type="text" id="OrderNumber" class="form-control" />
+            <span id="orderNumberError" class="text-danger"></span>
+            <label asp-for="OrderNumber" class="control-label"></label>
+            <input asp-for="OrderNumber" class="form-control" />
+            <span asp-validation-for="OrderNumber" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label class="control-label">Customer</label><span class="mandatory"></span>
-                @Html.DropDownList("CustomerId", (IEnumerable<SelectListItem>)ViewBag.CustomersId, "--Select--", new { @class = "form-select", required = "required" })
-                <span asp-validation-for="CustomerId" class="text-danger"></span>
+            <label class="control-label">Customer</label><span class="mandatory"></span>
+            @Html.DropDownList("CustomerId", (IEnumerable<SelectListItem>)ViewBag.CustomersId, "--Select--", new { @class = "form-select", required = "required" })
+            <span asp-validation-for="CustomerId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="OrderDate" class="control-label"></label>
-                <input asp-for="OrderDate" id="datetime" class="form-control" />
-                <span asp-validation-for="OrderDate" class="text-danger"></span>
+            <label asp-for="OrderDate" class="control-label"></label>
+            <input asp-for="OrderDate" id="datetime" class="form-control" />
+            <span asp-validation-for="OrderDate" class="text-danger"></span>
             </div> *@
-        @if (Model.OrderId == 0)
-        {
-            <div class="form-group">
-                <label asp-for="OrderNumber" class="control-label"></label>
-                <input asp-for="OrderNumber" class="form-control" required />
-                <span asp-validation-for="OrderNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label class="control-label">Customer</label><span class="mandatory"></span>
-                @Html.DropDownList("CustomerId", (IEnumerable<SelectListItem>)ViewBag.CustomersId, "--Select--", new { @class = "form-select", required = "required" })
-                <span asp-validation-for="CustomerId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="OrderDate" class="control-label"></label>
-                <input asp-for="OrderDate" id="orderDate" class="form-control" />
-                <span asp-validation-for="OrderDate" class="text-danger"></span>
-            </div>
-        }
-        else
-        {
-            <div class="form-group">
-                <label asp-for="OrderNumber" class="control-label"></label>
-                <input asp-for="OrderNumber" class="form-control" required readonly />
-                <span asp-validation-for="OrderNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label class="control-label">Customer</label><span class="mandatory"></span>
-                @Html.DropDownList("CustomerId", (IEnumerable<SelectListItem>)ViewBag.CustomersId, "--Select--", new { @class = "form-select", required = "required", disabled = "disabled" })
-                <input type="hidden" asp-for="CustomerId" />
-                <span asp-validation-for="CustomerId" class="text-danger"></span>
-            </div>
+            @if (Model.OrderId == 0)
+            {
+                <div class="form-group">
+
+                    <label asp-for="OrderNumber" class="control-label"></label>
+                    <input asp-for="OrderNumber" class="form-control" required />
+                    <span asp-validation-for="OrderNumber" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Customer</label><span class="mandatory"></span>
+                    @Html.DropDownList("CustomerId", (IEnumerable<SelectListItem>)ViewBag.CustomersId, "--Select--", new { @class = "form-select", required = "required" })
+                    <span asp-validation-for="CustomerId" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="OrderDate" class="control-label"></label>
+                    <input asp-for="OrderDate" id="orderDate" class="form-control" />
+                    <span asp-validation-for="OrderDate" class="text-danger"></span>
+                </div>
+            }
+            else
+            {
+                <div class="form-group">
+                    <label asp-for="OrderNumber" class="control-label"></label>
+                    <input asp-for="OrderNumber" class="form-control" required readonly />
+                    <span asp-validation-for="OrderNumber" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Customer</label><span class="mandatory"></span>
+                    @Html.DropDownList("CustomerId", (IEnumerable<SelectListItem>)ViewBag.CustomersId, "--Select--", new { @class = "form-select", required = "required", disabled = "disabled" })
+                    <input type="hidden" asp-for="CustomerId" />
+                    <span asp-validation-for="CustomerId" class="text-danger"></span>
+                </div>
 
 
-            <div class="form-group">
-                <label asp-for="OrderDate" class="control-label"></label>
-                <input asp-for="OrderDate" id="orderDate" class="form-control" readonly />
-                <span asp-validation-for="OrderDate" class="text-danger"></span>
-            </div>
-        }
+                <div class="form-group">
+                    <label asp-for="OrderDate" class="control-label"></label>
+                    <input asp-for="OrderDate" id="orderDate" class="form-control" readonly />
+                    <span asp-validation-for="OrderDate" class="text-danger"></span>
+                </div>
+            }
         </div>
         </div>
         <br />
         <h5><b>Order Items</b></h5>
         <br />
+        <input type="hidden" id="OrderId" name="OrderId" value="@Model.OrderId" />
 
         <div class="package" id="option">
             <div class="form-group">
@@ -432,7 +506,9 @@
                 Order number already exists. Please choose a different order number.
             </div>
             <div class="form-adjust">
-                <input type="submit" value="Save" class="btn btn-primary" />
+@*                
+ *@                <input type="submit" id="submitOrderButton" value="Save" class="btn btn-red btn-disabled" />
+                <div id="submitAlert" class="text-danger" style="display: none; margin-top: 10px;">Please add at least one product before Placing the Order.</div>
             </div>
         </div>
     </form>

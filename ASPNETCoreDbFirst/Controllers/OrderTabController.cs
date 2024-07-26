@@ -78,6 +78,8 @@ namespace ASPNETCoreDbFirst.Controllers
         [HttpGet]
         public async Task<ActionResult> Create(int id)
         {
+            HttpContext.Session.Remove("Order");
+
             var result = _context.Customers.Where(p => !p.IsDeleted && p.IsActive).ToList();
             var response = _context.Products.Where(p => !p.IsDeleted && p.IsActive).ToList();
             var find = _context.StatusTabs.ToList();
@@ -123,7 +125,7 @@ namespace ASPNETCoreDbFirst.Controllers
             ViewBag.CustomerId = new SelectList(_context.Customers.Where(c => !c.IsDeleted && c.IsActive).ToList(), "CustomerId", "Name", order.CustomerId);
             ViewBag.ProductId = new SelectList(_context.Products.Where(p => !p.IsDeleted && p.IsActive).ToList(), "ProductId", "Name");
             ViewBag.StatusId = new SelectList(_context.StatusTabs.ToList(), "StatusId", "StatusName", order.StatusId);
-
+          
             return View(viewModel);
         }
 
@@ -161,7 +163,7 @@ namespace ASPNETCoreDbFirst.Controllers
                     SubTotal = ordervm.SubTotal,
                     IsDeleted = false,
                     Discount = ordervm.Discount,
-                    ShippingFee = ordervm.ShippingFee,
+                    ShippingFee = 0+ ordervm.ShippingFee,
                     NetTotal = ordervm.NetTotal,
                     StatusId = ordervm.StatusId,
                 };
@@ -193,6 +195,17 @@ namespace ASPNETCoreDbFirst.Controllers
                     return NotFound();
                  }
 
+                // Check for OrderNumber duplication only if it's not the current order
+                if (!string.IsNullOrEmpty(ordervm.OrderNumber) && order.OrderNumber != ordervm.OrderNumber)
+                {
+                    var existingOrder = await _context.OrderTabs
+                        .AnyAsync(o => o.OrderNumber == ordervm.OrderNumber && (o.IsDeleted == false || o.IsDeleted == null));
+
+                    if (existingOrder)
+                    {
+                     
+                    }
+                }
 
                 order.OrderNumber = ordervm.OrderNumber;
                 order.CustomerId = ordervm.CustomerId;
@@ -268,7 +281,7 @@ namespace ASPNETCoreDbFirst.Controllers
 
 
         public IActionResult AddItem(OrderTabVM newItem)
-        {
+         {
             var items = GetOrderItemsFromSession();
 
             var product = _context.Products.Find(newItem.ProductId);
@@ -282,8 +295,9 @@ namespace ASPNETCoreDbFirst.Controllers
 
                 if (existingItem != null)
                 {
+                  
                     existingItem.Quantity += newItem.Quantity;
-                    existingItem.TotalAmount += existingItem.Quantity * existingItem.UnitPrice;
+                    existingItem.TotalAmount = existingItem.Quantity * existingItem.UnitPrice;
 
                 }
                 else
@@ -313,18 +327,27 @@ namespace ASPNETCoreDbFirst.Controllers
         }
 
         [HttpGet]
-        public async Task<JsonResult> CheckOrderNumber(string orderNumber)
+        public async Task<JsonResult> CheckOrderNumber(string orderNumber, int? orderId)
         {
             if (string.IsNullOrEmpty(orderNumber))
             {
                 return Json(new { exists = false });
             }
 
-            var existingOrder = await _context.OrderTabs
-                .AnyAsync(o => o.OrderNumber == orderNumber && (o.IsDeleted == false || o.IsDeleted == null));
+            var existingOrderQuery = _context.OrderTabs
+                .Where(o => o.OrderNumber == orderNumber && (o.IsDeleted == false || o.IsDeleted == null));
+
+            if (orderId.HasValue)
+            {
+                existingOrderQuery = existingOrderQuery.Where(o => o.OrderId != orderId.Value);
+            }
+
+            var existingOrder = await existingOrderQuery.AnyAsync();
 
             return Json(new { exists = existingOrder });
         }
+
+
 
         public IActionResult GetExistingItems(int orderId)
         {
@@ -340,6 +363,7 @@ namespace ASPNETCoreDbFirst.Controllers
 
             return Json(items);
         }
+
     }
     
 }

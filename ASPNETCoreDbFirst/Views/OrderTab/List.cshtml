@@ -155,8 +155,8 @@
                         modalBody.append('<p><strong>Customer Name:</strong> ' + data.customerName + '</p>');
                         modalBody.append('<p><strong>Order Date:</strong> ' + new Date(data.orderDate).toLocaleDateString() + '</p>');
                         modalBody.append('<p><strong>Subtotal:</strong> ' + data.subTotal + '</p>');
-                        modalBody.append('<p><strong>Discount:</strong> ' + data.discount + '</p>');
-                        modalBody.append('<p><strong>Shipping Fee:</strong> ' + data.shippingFee + '</p>');
+                        modalBody.append('<p><strong>Discount (%):</strong> ' + (data.discount||0 )+ '</p>');
+                        modalBody.append('<p><strong>Shipping Fee:</strong> ' + (data.shippingFee || 0) + '</p>');
                         modalBody.append('<p><strong>Net Amount:</strong> ' + data.netTotal + '</p>');
                         modalBody.append('<p><strong>Status:</strong> ' + data.statusName + '</p>');
                         modalBody.append('<hr>');
@@ -190,8 +190,8 @@
                         modalBody.append('<p><strong>Customer Name:</strong> ' + data.customerName + '</p>');
                         modalBody.append('<p><strong>Order Date:</strong> ' + new Date(data.orderDate).toLocaleDateString() + '</p>');
                         modalBody.append('<p><strong>Subtotal:</strong> ' + data.subTotal + '</p>');
-                        modalBody.append('<p><strong>Discount:</strong> ' + data.discount + '</p>');
-                        modalBody.append('<p><strong>Shipping Fee:</strong> ' + data.shippingFee + '</p>');
+                        modalBody.append('<p><strong>Discount (%):</strong> ' + (data.discount || 0) + '</p>');
+                        modalBody.append('<p><strong>Shipping Fee:</strong> ' + (data.shippingFee || 0) + '</p>');
                         modalBody.append('<p><strong>Net Total:</strong> ' + data.netTotal + '</p>');
                         modalBody.append('<p><strong>Status:</strong> ' + data.statusName + '</p>');
                         modalBody.append('<hr>');
@@ -220,7 +220,7 @@
                     success: function () {
                         $('#deleteConfirmationModal').modal('hide');
                         //$('#item-' + orderId).remove();
-                        location.reload();
+                        window.location.href = '/OrderTab/List';
                     },
                     error: function () {
                         //alert('Error deleting order.');
