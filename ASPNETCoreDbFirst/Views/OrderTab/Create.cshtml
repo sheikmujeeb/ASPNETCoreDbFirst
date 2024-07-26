@@ -149,8 +149,8 @@
             if (existingOrderItems.length > 0) {
                 $.each(existingOrderItems, function (index, item) {
                     var row = '<tr>' +
-                        "<td><input type='button' class = 'editproduct' value = 'Edit' class='btn btn-outline-primary' /> </td>" +
-                        "<td><input type='button' class = 'removeproduct' value = 'Delete' class='btn btn-outline-primary' /> </td>" +
+                        "<td><input type='button' class = 'editproduct btn btn-outline-primary' value = 'Edit'/> </td>" +
+                        "<td><input type='button' class = 'removeproduct btn btn-outline-primary'  value = 'Delete' /> </td>" +
                         '<td>' + item.ProductName + '</td>' +
                         '<td>' + item.Quantity + '</td>' +
                         '<td>' + item.UnitPrice + '</td>' +
@@ -208,110 +208,6 @@
                 });
             });
 
-
-
-
-
-
-            // $('#addProduct').click(function () {
-            //     var quantity = parseInt($('#Quantity').val()) || 0;
-            //     if (quantity <= 0) {
-            //         alert("Enter the Correct Quantity.");
-            //         return;
-            //     }
-
-            //     var newItem = {
-            //         ProductId: $('#ProductId').val(),
-            //         Quantity: quantity,
-            //         UnitPrice: $('#UnitPrice').val()
-            //     };
-
-            //     $.ajax({
-            //         url: '@Url.Action("AddItem", "OrderTab")',
-            //         type: 'POST',
-            //         data: newItem,
-            //         success: function (response) {
-            //             var item = response;
-            //             var existingRow = $(`#productbody tr[data-product-id='${item.productId}']`);
-
-            //             if (existingRow.length > 0) {
-            //                 // Update existing row
-
-            //                 existingRow.find('td:eq(2)').text(item.quantity);
-            //                 existingRow.find('td:eq(3)').text(item.unitPrice.toFixed(2));
-            //                 existingRow.find('td:eq(4)').text(item.totalAmount.toFixed(2));
-            //             } else {
-            //                 // Add new row
-            //                 var newRow = `<tr data-product-id="${item.productId}">
-            //                     <td><input type='button' id='editproduct' value='Edit' class='btn btn-outline-primary'/></td>
-            //                     <td><input type='button' id='removeproduct' value='Delete' class='btn btn-outline-primary'/></td>
-            //                     <td>${item.productName}</td>
-            //                     <td>${item.quantity}</td>
-            //                     <td>${item.unitPrice.toFixed(2)}</td>
-            //                     <td>${item.totalAmount.toFixed(2)}</td>
-            //                 </tr>`;
-            //                 $("#productbody").append(newRow);
-            //             }
-
-            //             // Update subtotal
-            //             updateSubtotal();
-
-            //             $('#ProductId').val('');
-            //             $('#Quantity').val('');
-            //             $('#UnitPrice').val('');
-            //         },
-            //         error: function (response) {
-            //             alert("Error adding item");
-            //         }
-            //     });
-            // });
-
-            // function updateSubtotal() {
-            //     var subtotal = 0;
-            //     $("#productbody tr").each(function () {
-            //         var totalAmount = parseFloat($(this).find('td:eq(5)').text()) || 0;
-            //         subtotal += totalAmount;
-            //     });
-            //     $("#SubTotal").val(subtotal.toFixed(2));
-            //     calculateNetAmount();
-            // }
-
-
-
-            // $('#OrderNumber').on('blur', function () {
-            //     var orderNumber = $(this).val();
-
-            //     if (orderNumber) {
-            //         $.ajax({
-            //             url: '@Url.Action("CheckOrderNumber", "OrderTab")',
-            //             type: 'GET',
-            //             data: { orderNumber: orderNumber },
-            //             success: function (response) {
-            //                 if (response.exists) {
-            //                     $('#orderNumberError').text('Order number already exists.');
-            //                     $('#orderItemsContainer').show();
-            //                     $('#orderItemsTable tbody').empty();
-
-            //                     $.each(response.items, function (index, item) {
-            //                         var row = '<tr>' +
-            //                             '<td>' + item.ProductName + '</td>' +
-            //                             '<td>' + item.Quantity + '</td>' +
-            //                             '<td>' + item.UnitPrice + '</td>' +
-            //                             '<td>' + item.TotalAmount + '</td>' +
-            //                             '</tr>';
-            //                         $('#orderItemsTable tbody').append(row);
-            //                     });
-            //                 } else {
-            //                     $('#orderNumberError').text('');
-            //                     $('#orderItemsContainer').hide();
-            //                 }
-            //             }
-            //         });
-            //     } else {
-            //         $('#orderNumberError').text('');
-            //         $('#orderItemsContainer').hide();
-            //     }
-            // });
 
         });
 

@@ -69,7 +69,8 @@ namespace ASPNETCoreDbFirst.Controllers
 
         private void SaveOrderItemsToSession(List<OrderTabVM> items)
         {
-            HttpContext.Session.SetString("order", JsonConvert.SerializeObject(items));
+            var sessionData = JsonConvert.SerializeObject(items);
+            HttpContext.Session.SetString("Order", sessionData);
         }
 
         // GET: OrderTabController/Create
@@ -169,7 +170,7 @@ namespace ASPNETCoreDbFirst.Controllers
                 _context.OrderTabs.Add(order);
                 await _context.SaveChangesAsync();
 
-                var temp = (HttpContext.Session.GetString("order"));
+                var temp = (HttpContext.Session.GetString("Order"));
                 var orderItem = JsonConvert.DeserializeObject<List<OrderItem>>(temp);
                 if (orderItem != null)
                 {
@@ -180,7 +181,7 @@ namespace ASPNETCoreDbFirst.Controllers
                     }
                     await _context.SaveChangesAsync();
                 }
-                HttpContext.Session.Remove("order");
+                HttpContext.Session.Remove("Order");
                 return RedirectToAction(nameof(List));
             }
             else
@@ -192,17 +193,17 @@ namespace ASPNETCoreDbFirst.Controllers
                     return NotFound();
                  }
 
+
                 order.OrderNumber = ordervm.OrderNumber;
                 order.CustomerId = ordervm.CustomerId;
                 order.OrderDate = ordervm.OrderDate;
-                order.IsDeleted = false;
                 order.SubTotal = ordervm.SubTotal;
                 order.Discount = ordervm.Discount;
                 order.ShippingFee = ordervm.ShippingFee;
                 order.NetTotal = ordervm.NetTotal;
                 order.StatusId = ordervm.StatusId;
 
-                _context.OrderTabs.Update(order);
+                _context.Update(order);
 
                 var existingOrderItems = GetOrderItemsFromSession();
                 foreach (var item in existingOrderItems)
@@ -210,6 +211,7 @@ namespace ASPNETCoreDbFirst.Controllers
                     var orderItem = order.OrderItemTabs.FirstOrDefault(oi => oi.ProductId == item.ProductId);
                     if (orderItem != null)
                     {
+                        orderItem.Product.Name = item.ProductName;
                         orderItem.Quantity = item.Quantity;
                         orderItem.UnitPrice = item.UnitPrice;
                         orderItem.TotalAmount = item.TotalAmount;
@@ -230,7 +232,7 @@ namespace ASPNETCoreDbFirst.Controllers
                 }
 
                 await _context.SaveChangesAsync();
-                HttpContext.Session.Remove("order");
+                HttpContext.Session.Remove("Order");
                 return RedirectToAction(nameof(List));
             }
         }
@@ -297,21 +299,17 @@ namespace ASPNETCoreDbFirst.Controllers
         }
         public IActionResult RemoveItem(int productid)
         {
-            var items = _context.OrderItems.FirstOrDefault(i => i.ProductId == productid);
+
+            var session = GetOrderItemsFromSession();
+
+            var items = session.FirstOrDefault(i => i.ProductId == productid);
             if (items != null)
             {
-                _context.OrderItems.Remove(items);
-                _context.SaveChanges();
+                session.Remove(items);
+                SaveOrderItemsToSession(session);
             }
-            var order = _context.OrderItems.Select(i => new
-            {
-                i.ProductId,
-                i.Product.Name,
-                i.Quantity,
-                i.UnitPrice,
-                i.TotalAmount
-            }).ToList();
-            return Json(order); 
+   
+            return Json(session); 
         }
 
         [HttpGet]

@@ -192,7 +192,7 @@
                         modalBody.append('<p><strong>Subtotal:</strong> ' + data.subTotal + '</p>');
                         modalBody.append('<p><strong>Discount:</strong> ' + data.discount + '</p>');
                         modalBody.append('<p><strong>Shipping Fee:</strong> ' + data.shippingFee + '</p>');
-                        modalBody.append('<p><strong>Net Total:</strong> ' + data.netAmount + '</p>');
+                        modalBody.append('<p><strong>Net Total:</strong> ' + data.netTotal + '</p>');
                         modalBody.append('<p><strong>Status:</strong> ' + data.statusName + '</p>');
                         modalBody.append('<hr>');
                         modalBody.append('<h5>Order Items</h5>');
@@ -219,10 +219,11 @@
                     type: 'POST',
                     success: function () {
                         $('#deleteConfirmationModal').modal('hide');
+                        //$('#item-' + orderId).remove();
                         location.reload();
                     },
                     error: function () {
-                        alert('Error deleting order.');
+                        //alert('Error deleting order.');
                     }
                 });
             });
