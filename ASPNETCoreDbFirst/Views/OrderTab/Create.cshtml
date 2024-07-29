@@ -67,10 +67,10 @@
 
             function calculateNetAmount() {
                 var subtotal = parseFloat($('#SubTotal').val()) || 0;
-                var discount = parseFloat($('#Discount').val()) || 0;
+                var discountPercentage = parseFloat($('#Discount').val()) || 0;
                 var shippingFee = parseFloat($('#ShippingFee').val()) || 0;
 
-                var discountAmount = discount;
+                var discountAmount = (discountPercentage / 100) * subtotal;
                 var netAmount = subtotal - discountAmount + shippingFee;
 
                 $('#NetTotal').val(netAmount.toFixed(2));
@@ -456,7 +456,7 @@
 
             <div class="package" id="option">
                 <div class="form-group">
-                    <label class="control-label">Products</label><span class="mandatory"></span>
+                    <label class="control-label">Products(Add Aleast One)</label><span class="mandatory"></span>
                     @Html.DropDownList("ProductId", (IEnumerable<SelectListItem>)ViewBag.ProductId, "--Select--", new { @id = "ProductId", @class = "form-select" })
                     <span asp-validation-for="ProductId" class="text-danger"></span>
                 </div>
